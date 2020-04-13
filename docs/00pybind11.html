@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>pybind11: использование c++ из Python</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://pybind11.readthedocs.io/en/stable/_images/pybind11-logo.png">
+<h3 class="subtitle">Использование c++ из python</h3><p class="author">Александр Крутиков</p><p class="date">2020-04-15</p>
+</section>
+
+<section>
+<section id="slide-org664861c">
+<h2 id="org664861c">Intro</h2>
+<p>
+<a href="https://docs.python.org/3/extending/extending.html">Расширение python</a>
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-cpp"><span style="color: #df005f; font-weight: bold;">PyMODINIT_FUNC</span>
+<span style="color: #d75fd7; font-weight: bold;">PyInit_spam</span><span style="color: #268bd2;">(</span><span style="color: #df005f; font-weight: bold;">void</span><span style="color: #268bd2;">)</span>
+<span style="color: #268bd2;">{</span>
+    <span style="color: #df005f; font-weight: bold;">PyObject</span> *<span style="color: #8787d7;">m</span>;
+
+    m = PyModule_Create<span style="color: #d75fd7;">(</span>&amp;spammodule<span style="color: #d75fd7;">)</span>;
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">(</span>m == <span style="color: #d75fd7;">NULL</span><span style="color: #d75fd7;">)</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">NULL</span>;
+
+    SpamError = PyErr_NewException<span style="color: #d75fd7;">(</span><span style="color: #2aa198;">"spam.error"</span>, <span style="color: #d75fd7;">NULL</span>, <span style="color: #d75fd7;">NULL</span><span style="color: #d75fd7;">)</span>;
+    Py_XINCREF<span style="color: #d75fd7;">(</span>SpamError<span style="color: #d75fd7;">)</span>;
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">(</span>PyModule_AddObject<span style="color: #2aa198;">(</span>m, <span style="color: #2aa198;">"error"</span>, SpamError<span style="color: #2aa198;">)</span> &lt; <span style="color: #d75fd7;">0</span><span style="color: #d75fd7;">)</span> <span style="color: #d75fd7;">{</span>
+        Py_XDECREF<span style="color: #2aa198;">(</span>SpamError<span style="color: #2aa198;">)</span>;
+        Py_CLEAR<span style="color: #2aa198;">(</span>SpamError<span style="color: #2aa198;">)</span>;
+        Py_DECREF<span style="color: #2aa198;">(</span>m<span style="color: #2aa198;">)</span>;
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">NULL</span>;
+    <span style="color: #d75fd7;">}</span>
+
+    <span style="color: #268bd2; font-weight: bold;">return</span> m;
+<span style="color: #268bd2;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org53c2b65">
+<h2 id="org53c2b65">Первый пример</h2>
+<div class="org-src-container">
+
+<pre  class="src src-cpp"><span style="color: #268bd2; font-weight: bold;">struct</span> <span style="color: #df005f; font-weight: bold;">Pet</span> <span style="color: #268bd2;">{</span>
+    <span style="color: #d75fd7; font-weight: bold;">Pet</span><span style="color: #d75fd7;">(</span><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> &amp;<span style="color: #8787d7;">name</span><span style="color: #d75fd7;">)</span> : name<span style="color: #d75fd7;">(</span>name<span style="color: #d75fd7;">)</span> <span style="color: #d75fd7;">{</span> <span style="color: #d75fd7;">}</span>
+    <span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">setName</span><span style="color: #d75fd7;">(</span><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> &amp;<span style="color: #8787d7;">name_</span><span style="color: #d75fd7;">)</span> <span style="color: #d75fd7;">{</span> name = name_; <span style="color: #d75fd7;">}</span>
+    <span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> &amp;<span style="color: #d75fd7; font-weight: bold;">getName</span><span style="color: #d75fd7;">()</span> <span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">{</span> <span style="color: #268bd2; font-weight: bold;">return</span> name; <span style="color: #d75fd7;">}</span>
+
+    <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #8787d7;">name</span>;
+<span style="color: #268bd2;">}</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org047ea98">
+<h2 id="org047ea98">Код обертки для первого примера</h2>
+<div class="org-src-container">
+
+<pre  class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #268bd2;">&lt;</span><span style="color: #2aa198;">pybind11/pybind11.h</span><span style="color: #268bd2;">&gt;</span>
+
+<span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">py</span> = pybind11;
+
+<span style="color: #d75fd7; font-weight: bold;">PYBIND11_MODULE</span><span style="color: #268bd2;">(</span>example, m<span style="color: #268bd2;">)</span> <span style="color: #268bd2;">{</span>
+    <span style="color: #d75fd7;">py</span>::class_<span style="color: #d75fd7;">&lt;</span>Pet<span style="color: #d75fd7;">&gt;(</span>m, <span style="color: #2aa198;">"Pet"</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::init<span style="color: #2aa198;">&lt;</span><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> &amp;<span style="color: #2aa198;">&gt;()</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #2aa198;">"setName"</span>, &amp;<span style="color: #d75fd7;">Pet</span>::setName<span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #2aa198;">"getName"</span>, &amp;<span style="color: #d75fd7;">Pet</span>::getName<span style="color: #d75fd7;">)</span>;
+<span style="color: #268bd2;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org6cca465">
+<h2 id="org6cca465">Перегрузка методов</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #d75fd7;">py</span>::class_<span style="color: #268bd2;">&lt;</span>Pet<span style="color: #268bd2;">&gt;(</span>m, <span style="color: #2aa198;">"Pet"</span><span style="color: #268bd2;">)</span>
+    .def<span style="color: #268bd2;">(</span><span style="color: #2aa198;">"set"</span>, <span style="color: #d75fd7;">py</span>::overload_cast<span style="color: #d75fd7;">&lt;</span><span style="color: #df005f; font-weight: bold;">int</span><span style="color: #d75fd7;">&gt;(</span>&amp;<span style="color: #d75fd7;">Pet</span>::set<span style="color: #d75fd7;">)</span>, <span style="color: #2aa198;">"Set the pet's age"</span><span style="color: #268bd2;">)</span>
+    .def<span style="color: #268bd2;">(</span><span style="color: #2aa198;">"set"</span>, <span style="color: #d75fd7;">py</span>::overload_cast<span style="color: #d75fd7;">&lt;</span><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">std</span>::<span style="color: #df005f; font-weight: bold;">string</span> &amp;<span style="color: #d75fd7;">&gt;(</span>&amp;<span style="color: #d75fd7;">Pet</span>::set<span style="color: #d75fd7;">)</span>, <span style="color: #2aa198;">"Set the pet's name"</span><span style="color: #268bd2;">)</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orge18bddd">
+<h2 id="orge18bddd">Перегрузка операторов</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #d75fd7;">#include</span> <span style="color: #268bd2;">&lt;</span><span style="color: #2aa198;">pybind11/operators.h</span><span style="color: #268bd2;">&gt;</span>
+
+<span style="color: #d75fd7; font-weight: bold;">PYBIND11_MODULE</span><span style="color: #268bd2;">(</span>example, m<span style="color: #268bd2;">)</span> <span style="color: #268bd2;">{</span>
+    <span style="color: #d75fd7;">py</span>::class_<span style="color: #d75fd7;">&lt;</span>Vector2<span style="color: #d75fd7;">&gt;(</span>m, <span style="color: #2aa198;">"Vector2"</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::init<span style="color: #2aa198;">&lt;</span><span style="color: #df005f; font-weight: bold;">float</span>, <span style="color: #df005f; font-weight: bold;">float</span><span style="color: #2aa198;">&gt;()</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::self + <span style="color: #d75fd7;">py</span>::self<span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::self += <span style="color: #d75fd7;">py</span>::self<span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::self *= <span style="color: #df005f; font-weight: bold;">float</span><span style="color: #2aa198;">()</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #df005f; font-weight: bold;">float</span><span style="color: #2aa198;">()</span> * <span style="color: #d75fd7;">py</span>::self<span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #d75fd7;">py</span>::<span style="color: #df005f; font-weight: bold;">self</span> * <span style="color: #df005f; font-weight: bold;">float</span><span style="color: #2aa198;">()</span><span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span>-<span style="color: #d75fd7;">py</span>::self<span style="color: #d75fd7;">)</span>
+        .def<span style="color: #d75fd7;">(</span><span style="color: #2aa198;">"__repr__"</span>, &amp;<span style="color: #d75fd7;">Vector2</span>::toString<span style="color: #d75fd7;">)</span>;
+<span style="color: #268bd2;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org056e835">
+<h2 id="org056e835">return_value_policy</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">Function declaration */</span>
+<span style="color: #df005f; font-weight: bold;">Data</span> *<span style="color: #d75fd7; font-weight: bold;">get_data</span><span style="color: #268bd2;">()</span> <span style="color: #268bd2;">{</span> <span style="color: #268bd2; font-weight: bold;">return</span> _data; <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">(pointer to a static data structure) */</span> <span style="color: #268bd2;">}</span>
+...
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">Binding code */</span>
+m.def<span style="color: #268bd2;">(</span><span style="color: #2aa198;">"get_data"</span>, &amp;get_data, <span style="color: #d75fd7;">return_value_policy</span>::reference<span style="color: #268bd2;">)</span>;
+</pre>
+</div>
+<ul>
+<li>return_value_policy::take_ownership</li>
+<li>return_value_policy::copy</li>
+<li>return_value_policy::move</li>
+<li>return_value_policy::reference</li>
+<li>return_value_policy::reference_internal</li>
+<li>return_value_policy::automatic</li>
+<li>return_value_policy::automatic_reference</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgf54c1ff">
+<h2 id="orgf54c1ff">Исключения</h2>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">C++ exception type</th>
+<th scope="col" class="org-left">Python exception type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">std::exception</td>
+<td class="org-left">RuntimeError</td>
+</tr>
+
+<tr>
+<td class="org-left">std::bad_alloc</td>
+<td class="org-left">MemoryError</td>
+</tr>
+
+<tr>
+<td class="org-left">std::out_of_range</td>
+<td class="org-left">IndexError</td>
+</tr>
+
+<tr>
+<td class="org-left">std::overflow_error</td>
+<td class="org-left">OverflowError</td>
+</tr>
+
+<tr>
+<td class="org-left">pybind11::stop_iteration</td>
+<td class="org-left">StopIteration</td>
+</tr>
+
+<tr>
+<td class="org-left">pybind11::error_already_set</td>
+<td class="org-left">Python API calls for C++</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+</section>
+<section>
+<section id="slide-org369b82d">
+<h2 id="org369b82d">Задачи</h2>
+<ul>
+<li><a href="https://pybind11.readthedocs.io/en/stable/advanced/classes.html#overriding-virtuals">Перезапись виртуальных функций в python</a></li>
+<li>Интерпретация ключей мапы как методов класса python</li>
+<li><a href="https://pybind11.readthedocs.io/en/stable/advanced/classes.html#module-local-class-bindings">Разделение на несколько библиотек</a></li>
+<li><a href="https://pybind11.readthedocs.io/en/stable/advanced/exceptions.html#registering-custom-translators">Регистрация своего исключения</a></li>
+<li><a href="https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html#making-opaque-types">Работа с stl-вектором в NumPy</a></li>
+<li><a href="https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html#eigen">Работа с Eigen-вектором в NumPy</a></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

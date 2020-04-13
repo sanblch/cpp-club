@@ -1,0 +1,58 @@
+.reveal .slide-number {
+    position: absolute;
+    display: block;
+    right: 28px;
+    bottom: 28px;
+    z-index: 31;
+    font-family: Helvetica, sans-serif;
+    font-size: 22px;
+    line-height: 1;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 8px; 
+}
+
+.reveal .slide-number a {
+    color: currentColor; 
+}
+
+.reveal .slide-number-delimiter {
+    margin: 0 3px; 
+}
+
+.scheme code {
+    font-size: 0.75em;
+    line-height: 1.2em !important;
+
+}
+
+.shell code {
+    font-size: 1.3em;
+    line-height: 2.0em !important;
+
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+    text-transform: none;
+
+}
+
+h1.title {
+    text-transform: none;
+
+}
+
+h3.subtitle {
+    text-transform: none;
+
+}
+
+img {
+    border: none !important;
+    box-shadow: none !important;
+}
