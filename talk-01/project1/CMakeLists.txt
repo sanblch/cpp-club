@@ -10,3 +10,6 @@ conan_basic_setup(NO_OUTPUT_DIRS)
 conan_define_targets()
 
 add_executable(${PROJECT_NAME} range-test.cpp)
+if(MSVC)
+  set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+endif()
