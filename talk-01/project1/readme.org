@@ -1,0 +1,5 @@
+#+BEGIN_SRC bash
+conan install .
+cmake .
+make
+#+END_SRC
