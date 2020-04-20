@@ -1,0 +1,4 @@
+#+BEGIN_SRC bash
+cmake . -DCMAKE_BUILD_TYPE=Release
+make
+#+END_SRC
