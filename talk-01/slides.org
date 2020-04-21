@@ -1,0 +1,136 @@
+#+TITLE: conan: первое знакомство
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/01conan
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://conan.io/img/jfrog_conan_logo.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Работа с Conan</h3><p class="author">%a</p><p class="date">2020-04-15</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Подходы к работе с зависимостями
+- third-party
+- submodules
+- apt/yum/chocolatey
+- find_package/find_path/find_library
+- ExternalProject_ad
+* Недостатки классических подходов
+- Сопровождение чужого кода
+- Дополнительные расходы на компиляцию
+- Несистемное хранение конфигураций сборок
+- Нет контроля конфигурации сборки
+* Когда пакетный менеджер крайне необходим
+- Библиотека не собирается в текущем окружении
+- Проект зависит от нескольких разных конфигураций библиотеки
+* package_name/package_version@user/channel
+* Давайте заглянем внутрь...
+* Конфиг пакета
+#+BEGIN_SRC conf
+[settings]
+    arch=x86_64
+    build_type=Release
+    compiler=Visual Studio
+    compiler.runtime=MD
+    compiler.version=15
+    os=Windows
+
+[requires]
+    zlib/1.Y.Z
+
+[options]
+    shared=False
+    with_openssl=False
+    with_zlib=True
+#+END_SRC
+* Профиль конана
+#+BEGIN_SRC conf
+[settings]
+os=Windows
+os_build=Windows
+arch=x86_64
+arch_build=x86_64
+compiler=Visual Studio
+compiler.version=16
+build_type=Release
+compiler.toolset=v141
+[options]
+[build_requires]
+[env]
+#+END_SRC
+* Cовместимость конфигураций
+compiler=Visual Studio
+| compiler.version       | 14 |   15 |   16 |
+| compiler.toolset       |    | v140 | v140 |
+#+ATTR_REVEAL: :frag (roll-in)
+| compiler.version       | 15 |   16 |
+| compiler.toolset       |    | v141 |
+* Cовместимость конфигураций
+compiler=*
+| compiler | clang | gcc |
+* Рецепт конана
+#+BEGIN_SRC python
+class EigenConan(ConanFile):
+    name = "eigen"
+    version = "3.3.90"
+    url = "https://gitlab.com/libeigen/eigen.git"
+    homepage = "http://eigen.tuxfamily.org"
+    description = "Eigen is a C++ template library for linear algebra: matrices, vectors, \
+                   numerical solvers, and related algorithms."
+    license = "MPL-2.0"
+    author = "Conan Community"
+    topics = ("eigen", "algebra", "linear-algebra", "vector", "numerical")
+    exports = "LICENSE"
+    exports_sources = "FindEigen3.cmake"
+    generators = "cmake"
+    no_copy_source = True
+#+END_SRC
+* Рецепт конана
+#+BEGIN_SRC python
+    def source(self):
+        git = tools.Git()
+        git.clone(self.url)
+        git.checkout("ee404667e2d3ffd60c2b39dfaf9fa5de0413f3bd")
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.definitions["BUILD_TESTING"] = 0
+        cmake.configure()
+        cmake.build()
+#+END_SRC
+* Рецепт конана
+#+BEGIN_SRC python
+    def package(self):
+        cmake = CMake(self)
+        cmake.install()
+
+    def package_id(self):
+        self.info.header_only()
+
+    def package_info(self):
+        self.cpp_info.name = "Eigen3"
+        self.cpp_info.includedirs = ['include/eigen3', 'include/unsupported']
+#+END_SRC
+* Работа в cmake
+#+BEGIN_SRC cmake
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(NO_OUTPUT_DIRS)
+#+END_SRC
+#+ATTR_REVEAL: :frag (roll-in)
+#+BEGIN_SRC cmake
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+conan_cmake_run(
+  PROFILE ${CONAN_PROFILE}
+  SETTINGS build_type=${CMAKE_BUILD_TYPE}
+  REQUIRES ${ALL_PACKAGES}
+  OPTIONS ${CONAN_OPTIONS_LIST}
+  GENERATORS cmake virtualrunenv
+  CONAN_COMMAND ${CONAN})
+#+END_SRC
+* Ссылки
+[[https://bincrafters.github.io/][Блог]]
+[[https://www.youtube.com/watch?v=nshzjMDD79w][C++ Package Manager]]
+[[https://www.youtube.com/watch?v=W9DBJunyZyQ][Разделяй и управляй вместе с Conan.io]]

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>conan: первое знакомство</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://conan.io/img/jfrog_conan_logo.png">
+<h3 class="subtitle">Работа с Conan</h3><p class="author">Александр Крутиков</p><p class="date">2020-04-15</p>
+</section>
+
+<section>
+<section id="slide-org16f3dd2">
+<h2 id="org16f3dd2">Подходы к работе с зависимостями</h2>
+<ul>
+<li>third-party</li>
+<li>submodules</li>
+<li>apt/yum/chocolatey</li>
+<li>find_package/find_path/find_library</li>
+<li>ExternalProject_ad</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org63b3534">
+<h2 id="org63b3534">Недостатки классических подходов</h2>
+<ul>
+<li>Сопровождение чужого кода</li>
+<li>Дополнительные расходы на компиляцию</li>
+<li>Несистемное хранение конфигураций сборок</li>
+<li>Нет контроля конфигурации сборки</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orged02fcd">
+<h2 id="orged02fcd">Когда пакетный менеджер крайне необходим</h2>
+<ul>
+<li>Библиотека не собирается в текущем окружении</li>
+<li>Проект зависит от нескольких разных конфигураций библиотеки</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgbf238b4">
+<h2 id="orgbf238b4">package_name/package_version@user/channel</h2>
+</section>
+</section>
+<section>
+<section id="slide-orge42f2ad">
+<h2 id="orge42f2ad">Давайте заглянем внутрь&#x2026;</h2>
+</section>
+</section>
+<section>
+<section id="slide-org71546b3">
+<h2 id="org71546b3">Конфиг пакета</h2>
+<div class="org-src-container">
+
+<pre  class="src src-conf">[<span style="color: #df005f; font-weight: bold;">settings</span>]
+    <span style="color: #8787d7;">arch</span>=x86_64
+    <span style="color: #8787d7;">build_type</span>=Release
+    <span style="color: #8787d7;">compiler</span>=Visual Studio
+    <span style="color: #8787d7;">compiler.runtime</span>=MD
+    <span style="color: #8787d7;">compiler.version</span>=15
+    <span style="color: #8787d7;">os</span>=Windows
+
+[<span style="color: #df005f; font-weight: bold;">requires</span>]
+    zlib/1.Y.Z
+
+[<span style="color: #df005f; font-weight: bold;">options</span>]
+    <span style="color: #8787d7;">shared</span>=False
+    <span style="color: #8787d7;">with_openssl</span>=False
+    <span style="color: #8787d7;">with_zlib</span>=True
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org524962d">
+<h2 id="org524962d">Профиль конана</h2>
+<div class="org-src-container">
+
+<pre  class="src src-conf">[<span style="color: #df005f; font-weight: bold;">settings</span>]
+<span style="color: #8787d7;">os</span>=Windows
+<span style="color: #8787d7;">os_build</span>=Windows
+<span style="color: #8787d7;">arch</span>=x86_64
+<span style="color: #8787d7;">arch_build</span>=x86_64
+<span style="color: #8787d7;">compiler</span>=Visual Studio
+<span style="color: #8787d7;">compiler.version</span>=16
+<span style="color: #8787d7;">build_type</span>=Release
+<span style="color: #8787d7;">compiler.toolset</span>=v141
+[<span style="color: #df005f; font-weight: bold;">options</span>]
+[<span style="color: #df005f; font-weight: bold;">build_requires</span>]
+[<span style="color: #df005f; font-weight: bold;">env</span>]
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf155911">
+<h2 id="orgf155911">Cовместимость конфигураций</h2>
+<p>
+compiler=Visual Studio
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">compiler.version</td>
+<td class="org-right">14</td>
+<td class="org-right">15</td>
+<td class="org-right">16</td>
+</tr>
+
+<tr>
+<td class="org-left">compiler.toolset</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">v140</td>
+<td class="org-right">v140</td>
+</tr>
+</tbody>
+</table>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides" class="fragment (roll-in)">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">compiler.version</td>
+<td class="org-right">15</td>
+<td class="org-right">16</td>
+</tr>
+
+<tr>
+<td class="org-left">compiler.toolset</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">v141</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section>
+<section id="slide-org6761ee8">
+<h2 id="org6761ee8">Cовместимость конфигураций</h2>
+<p>
+compiler=*
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">compiler</td>
+<td class="org-left">clang</td>
+<td class="org-left">gcc</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section>
+<section id="slide-org40f2c85">
+<h2 id="org40f2c85">Рецепт конана</h2>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #268bd2; font-weight: bold;">class</span> <span style="color: #df005f; font-weight: bold;">EigenConan</span><span style="color: #268bd2;">(</span>ConanFile<span style="color: #268bd2;">)</span>:
+    <span style="color: #8787d7;">name</span> = <span style="color: #2aa198;">"eigen"</span>
+    <span style="color: #8787d7;">version</span> = <span style="color: #2aa198;">"3.3.90"</span>
+    <span style="color: #8787d7;">url</span> = <span style="color: #2aa198;">"https://gitlab.com/libeigen/eigen.git"</span>
+    <span style="color: #8787d7;">homepage</span> = <span style="color: #2aa198;">"http://eigen.tuxfamily.org"</span>
+    <span style="color: #8787d7;">description</span> = <span style="color: #2aa198;">"Eigen is a C++ template library for linear algebra: matrices, vectors, \</span>
+<span style="color: #2aa198;">                   numerical solvers, and related algorithms."</span>
+    <span style="color: #d75fd7;">license</span> = <span style="color: #2aa198;">"MPL-2.0"</span>
+    <span style="color: #8787d7;">author</span> = <span style="color: #2aa198;">"Conan Community"</span>
+    <span style="color: #8787d7;">topics</span> = <span style="color: #268bd2;">(</span><span style="color: #2aa198;">"eigen"</span>, <span style="color: #2aa198;">"algebra"</span>, <span style="color: #2aa198;">"linear-algebra"</span>, <span style="color: #2aa198;">"vector"</span>, <span style="color: #2aa198;">"numerical"</span><span style="color: #268bd2;">)</span>
+    <span style="color: #8787d7;">exports</span> = <span style="color: #2aa198;">"LICENSE"</span>
+    <span style="color: #8787d7;">exports_sources</span> = <span style="color: #2aa198;">"FindEigen3.cmake"</span>
+    <span style="color: #8787d7;">generators</span> = <span style="color: #2aa198;">"cmake"</span>
+    <span style="color: #8787d7;">no_copy_source</span> = <span style="color: #d75fd7;">True</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org5623cb9">
+<h2 id="org5623cb9">Рецепт конана</h2>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #268bd2; font-weight: bold;">def</span> <span style="color: #d75fd7; font-weight: bold;">source</span><span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>:
+    <span style="color: #8787d7;">git</span> = tools.Git<span style="color: #268bd2;">()</span>
+    git.clone<span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span>.url<span style="color: #268bd2;">)</span>
+    git.checkout<span style="color: #268bd2;">(</span><span style="color: #2aa198;">"ee404667e2d3ffd60c2b39dfaf9fa5de0413f3bd"</span><span style="color: #268bd2;">)</span>
+
+<span style="color: #268bd2; font-weight: bold;">def</span> <span style="color: #d75fd7; font-weight: bold;">build</span><span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>:
+    <span style="color: #8787d7;">cmake</span> = CMake<span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>
+    <span style="color: #8787d7;">cmake.definitions</span><span style="color: #268bd2;">[</span><span style="color: #2aa198;">"BUILD_TESTING"</span><span style="color: #268bd2;">]</span> = <span style="color: #d75fd7;">0</span>
+    cmake.configure<span style="color: #268bd2;">()</span>
+    cmake.build<span style="color: #268bd2;">()</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgbd7f994">
+<h2 id="orgbd7f994">Рецепт конана</h2>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #268bd2; font-weight: bold;">def</span> <span style="color: #d75fd7; font-weight: bold;">package</span><span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>:
+    <span style="color: #8787d7;">cmake</span> = CMake<span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>
+    cmake.install<span style="color: #268bd2;">()</span>
+
+<span style="color: #268bd2; font-weight: bold;">def</span> <span style="color: #d75fd7; font-weight: bold;">package_id</span><span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>:
+    <span style="color: #268bd2; font-weight: bold;">self</span>.info.header_only<span style="color: #268bd2;">()</span>
+
+<span style="color: #268bd2; font-weight: bold;">def</span> <span style="color: #d75fd7; font-weight: bold;">package_info</span><span style="color: #268bd2;">(</span><span style="color: #268bd2; font-weight: bold;">self</span><span style="color: #268bd2;">)</span>:
+    <span style="color: #268bd2; font-weight: bold;">self</span>.cpp_info.name = <span style="color: #2aa198;">"Eigen3"</span>
+    <span style="color: #268bd2; font-weight: bold;">self</span>.cpp_info.includedirs = <span style="color: #268bd2;">[</span><span style="color: #2aa198;">'include/eigen3'</span>, <span style="color: #2aa198;">'include/unsupported'</span><span style="color: #268bd2;">]</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org863dfe9">
+<h2 id="org863dfe9">Работа в cmake</h2>
+<div class="org-src-container">
+
+<pre  class="src src-cmake"><span style="color: #d75fd7; font-weight: bold;">include</span><span style="color: #268bd2;">(</span>$<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CMAKE_BINARY_DIR</span><span style="color: #d75fd7;">}</span>/conanbuildinfo.cmake<span style="color: #268bd2;">)</span>
+<span style="color: #d75fd7; font-weight: bold;">conan_basic_setup</span><span style="color: #268bd2;">(</span>NO_OUTPUT_DIRS<span style="color: #268bd2;">)</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="fragment (roll-in)"><span style="color: #d75fd7; font-weight: bold;">include</span><span style="color: #268bd2;">(</span>$<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CMAKE_BINARY_DIR</span><span style="color: #d75fd7;">}</span>/conan.cmake<span style="color: #268bd2;">)</span>
+<span style="color: #d75fd7; font-weight: bold;">conan_cmake_run</span><span style="color: #268bd2;">(</span>
+  PROFILE $<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CONAN_PROFILE</span><span style="color: #d75fd7;">}</span>
+  SETTINGS build_type=$<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CMAKE_BUILD_TYPE</span><span style="color: #d75fd7;">}</span>
+  REQUIRES $<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">ALL_PACKAGES</span><span style="color: #d75fd7;">}</span>
+  OPTIONS $<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CONAN_OPTIONS_LIST</span><span style="color: #d75fd7;">}</span>
+  GENERATORS cmake virtualrunenv
+  CONAN_COMMAND $<span style="color: #d75fd7;">{</span><span style="color: #8787d7;">CONAN</span><span style="color: #d75fd7;">}</span><span style="color: #268bd2;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orga6c3426">
+<h2 id="orga6c3426">Ссылки</h2>
+<p>
+<a href="https://bincrafters.github.io/">Блог</a>
+<a href="https://www.youtube.com/watch?v=nshzjMDD79w">C++ Package Manager</a>
+<a href="https://www.youtube.com/watch?v=W9DBJunyZyQ">Разделяй и управляй вместе с Conan.io</a>
+</p>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>
