@@ -7,7 +7,7 @@
 #+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
 #+REVEAL_EXTRA_CSS: css/custom.css
 #+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://conan.io/img/jfrog_conan_logo.png">
-#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Работа с Conan</h3><p class="author">%a</p><p class="date">2020-04-15</p>
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Работа с Conan</h3><p class="author">%a</p><p class="date">2020-04-21</p>
 #+OPTIONS: num:nil
 #+OPTIONS: toc:nil
 #+OPTIONS: ^:nil

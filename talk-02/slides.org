@@ -1,4 +1,4 @@
-#+TITLE: Boost::Hana: metaprogramming
+#+TITLE: Boost::Hana: метапрограммирование
 #+AUTHOR: Александр Крутиков
 #+EMAIL: a.krutikov@innopolis.ru
 
@@ -6,10 +6,262 @@
 #+EXPORT_FILE_NAME: ../docs/02hana
 #+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
 #+REVEAL_EXTRA_CSS: css/custom.css
-#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://conan.io/img/jfrog_conan_logo.png">
-#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Metaprogrammirovanie s Boost::Hana</h3><p class="author">%a</p><p class="date">2020-04-15</p>
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Boost.png/220px-Boost.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Метапрограммирование с Boost::Hana</h3><p class="author">%a</p><p class="date">2020-04-28</p>
 #+OPTIONS: num:nil
 #+OPTIONS: toc:nil
 #+OPTIONS: ^:nil
 
-* Подходы к работе с зависимостями
+* Работа с compile-time типами
+** Integral compile-time types
+#+BEGIN_SRC c++
+constexpr auto three = 1 + 2;
+// -> int
+static_assert(three == 3); // assertion
+
+auto three = 1_c + 2_c;
+// -> integral_constant<int, 3>
+static_assert(three == 3_c);
+#+END_SRC
+** Integral compile-time type tuple
+#+begin_src c++
+  BOOST_HANA_CONSTANT_CHECK(front(tuple_c<int, 0, 1, 2>) == int_c<0>);
+#+end_src
+** Операции над кортежами compile-time типов
+#+BEGIN_SRC c++
+  // Basic usage:
+  static_assert(hana::zip_with(hana::mult, hana::make_tuple(1, 2, 3, 4),
+                               hana::make_tuple(5, 6, 7, 8)) ==
+                    hana::make_tuple(5, 12, 21, 32),
+                "");
+#+END_SRC
+* Пример: анализ размерности
+** Вычисление значений вместе с размерностью
+#+BEGIN_SRC c++
+int main() {
+  // clang-format off
+  Quantity<mass>         m{10.3};
+  Quantity<length>       d{3.6};
+  Quantity<time_>        t{2.4};
+  Quantity<velocity>     v{d / t};
+  Quantity<acceleration> a{3.9};
+  // Quantity<force>        f{m * v}; // Compiler error!
+  Quantity<force>        f{m * a}; // Works as expected
+  // clang-format on
+}
+#+END_SRC
+** Определение базовых единиц
+#+BEGIN_SRC c++
+// clang-format off
+// base dimensions                              M  L  T  I  K  J  N
+using mass        = decltype(hana::tuple_c<int, 1, 0, 0, 0, 0, 0, 0>);
+using length      = decltype(hana::tuple_c<int, 0, 1, 0, 0, 0, 0, 0>);
+using time_       = decltype(hana::tuple_c<int, 0, 0, 1, 0, 0, 0, 0>);
+using charge      = decltype(hana::tuple_c<int, 0, 0, 0, 1, 0, 0, 0>);
+using temperature = decltype(hana::tuple_c<int, 0, 0, 0, 0, 1, 0, 0>);
+using intensity   = decltype(hana::tuple_c<int, 0, 0, 0, 0, 0, 1, 0>);
+using amount      = decltype(hana::tuple_c<int, 0, 0, 0, 0, 0, 0, 1>);
+// clang-format on
+#+END_SRC
+** Определение производных единиц
+#+BEGIN_SRC c++
+// composite dimensions
+// clang-format off
+using velocity     = decltype(hana::tuple_c<int, 0, 1, -1, 0, 0, 0, 0>); // M/T
+using acceleration = decltype(hana::tuple_c<int, 0, 1, -2, 0, 0, 0, 0>); // M/T^2
+using force        = decltype(hana::tuple_c<int, 1, 1, -2, 0, 0, 0, 0>); // ML/T^2
+// clang-format on
+#+END_SRC
+** Структура значения
+#+begin_src c++
+template <typename Dimensions> struct Quantity {
+  double value_;
+  explicit Quantity(double v) : value_(v) {}
+  explicit operator double() const { return value_; }
+};
+#+end_src
+** Обработка ошибок
+#+begin_src c++
+  template <typename OtherDimensions>
+  explicit Quantity(Quantity<OtherDimensions> other) : value_(other.value_) {
+    static_assert(Dimensions{} == OtherDimensions{},
+                  "Constructing quantities with incompatible dimensions!");
+  }
+#+end_src
+
+** Операция умножения
+#+begin_src c++
+  template <typename D1, typename D2>
+  auto operator*(Quantity<D1> a, Quantity<D2> b) {
+    using D = decltype(hana::zip_with(std::plus<>{}, D1{}, D2{}));
+    return Quantity<D>{static_cast<double>(a) * static_cast<double>(b)};
+  }
+#+end_src
+** Операция деления
+#+begin_src c++
+  template <typename D1, typename D2>
+  auto operator/(Quantity<D1> a, Quantity<D2> b) {
+    using D = decltype(hana::zip_with(std::minus<>{}, D1{}, D2{}));
+    return Quantity<D>{static_cast<double>(a) / static_cast<double>(b)};
+  }
+#+end_src
+* Работа со списками типов
+** Мапа членов структуры
+#+begin_src c++
+  struct Person {
+    BOOST_HANA_DEFINE_STRUCT(Person, (std::string, name), (unsigned short, age));
+  };
+  Person john{"John", 30};
+  constexpr auto accessors = hana::accessors<Person>();
+  BOOST_HANA_CONSTANT_CHECK(hana::first(accessors[hana::size_c<1>]) ==
+                            BOOST_HANA_STRING("age"));
+  constexpr auto get_name = hana::second(accessors[hana::size_c<0>]);
+  BOOST_HANA_RUNTIME_CHECK(get_name(john) == "John");
+#+end_src
+* Пример: генерация JSON с помощью рефлексии
+** nlohmann::json
+#+BEGIN_SRC c++
+  struct Person {
+    std::string name;
+    int age;
+  };
+#+END_SRC
+** сериализация nlohmann::json
+#+BEGIN_SRC c++
+  Person p {"Houston", 21};
+  nlohmann::json j;
+  j["name"] = p.name;
+  j["age"] = p.age;
+#+END_SRC
+** десериализация nlohmann::json
+#+BEGIN_SRC c++
+  nlohmann::json j = {{"name", "Houston"}, {"age", 21}};
+  Person p;
+  j.at("name").get_to(p.name);
+  j.at("age").get_to(p.age);
+#+END_SRC
+** определение сериализации/десериализации
+#+BEGIN_SRC c++
+  namespace nlohmann {
+  template <> struct adl_serializer<Person> {
+    static void to_json(json &j, const Person &t) {
+      j["name"] = p.name;
+      j["age"] = p.age;
+    }
+    static void from_json(const json &j, Person &p) {
+      j.at("name").get_to(p.name);
+      j.at("age").get_to(p.age);
+    }
+  };
+#+END_SRC
+** Boost::Hana рефлексия
+#+BEGIN_SRC c++
+  struct Person {
+    std::string name;
+    int age;
+  };
+  BOOST_HANA_ADAPT_STRUCT(Person, name, age);
+#+END_SRC
+** определение сериализации/десериализации с Boost::Hana
+#+BEGIN_SRC c++
+  namespace nlohmann {
+  template <typename T>
+  struct adl_serializer<
+      T, typename std::enable_if<boost::hana::Struct<T>::value>::type> {
+    static void to_json(json &j, const T &t);
+    static void from_json(const json &j, T &t);
+  };
+  } // namespace nlohmann
+#+END_SRC
+** определение сериализации/десериализации с Boost::Hana
+#+BEGIN_SRC c++
+  // j["name"] = p.name;
+  // j["age"] = p.age;
+  static void to_json(json &j, const T &t) {
+    boost::hana::for_each(
+        boost::hana::accessors<T>(), [&j, &t](const auto &meta) {
+          j[boost::hana::to<const char *>(boost::hana::first(meta))] =
+              boost::hana::second(meta)(t);
+        });
+  }
+#+END_SRC
+** определение сериализации/десериализации с Boost::Hana
+#+BEGIN_SRC c++
+  // j.at("name").get_to(p.name);
+  // j.at("age").get_to(p.age);
+  static void from_json(const json &j, T &t) {
+    boost::hana::for_each(
+        boost::hana::accessors<T>(), [&j, &t](const auto &meta) {
+          j.at(boost::hana::to<const char *>(boost::hana::first(meta)))
+              .get_to(boost::hana::second(meta)(t));
+        });
+  }
+#+END_SRC
+* Работа с мапой типов
+** compile-time строки
+#+BEGIN_SRC c++
+  auto Hello_world = "hello"_s + " world"_s;
+  static_assert(Hello_world == "hello world"_s);
+#+END_SRC
+** map
+#+BEGIN_SRC c++
+  int main() {
+    BOOST_HANA_RUNTIME_CHECK(
+        hana::make_map(hana::make_pair(hana::char_c<'a'>, "foobar"s),
+                       hana::make_pair(hana::type_c<int &&>, nullptr)) ==
+        hana::make_map(hana::make_pair(hana::type_c<int &&>, (void *)0),
+                       hana::make_pair(hana::char_c<'a'>, "foobar"s)));
+  }
+#+END_SRC
+* Пример: очередь сообщений
+** Пример реализации
+#+BEGIN_SRC c++
+  int main() {
+    auto events = make_event_system("foo"_e = function<void(string)>,
+                                    "bar"_e = function<void(int)>,
+                                    "baz"_e = function<void(double)>);
+
+    events.on("foo"_e, [](string s) { cout << "foo with '" << s << "'!\n"; });
+    events.on("foo"_e,
+              [](string s) { cout << "foo with '" << s << "' again!\n"; });
+    events.on("bar"_e, [](int i) { cout << "bar with '" << i << "'!\n"; });
+    events.on("baz"_e, [](double d) { cout << "baz with '" << d << "'!\n"; });
+    // events.on("unknown"_e, []() { }); // compiler error!
+
+    events.trigger("foo"_e, "hello"); // no overhead for event lookup
+    events.trigger("bar"_e, 4);
+    events.trigger("baz"_e, 3.3);
+    // events.trigger("unknown"_e); // compiler error!
+  }
+#+END_SRC
+** Хранение событий
+#+BEGIN_SRC c++
+template <typename... Events> struct event_system;
+
+template <typename... Events, typename... Signatures>
+struct event_system<hana::pair<Events, hana::basic_type<Signatures>>...> {
+  hana::map<hana::pair<Events, std::vector<std::function<Signatures>>>...> map_;
+#+END_SRC
+** Регистрация событий
+#+BEGIN_SRC c++
+  template <typename Event, typename F> void on(Event e, F callback) {
+    auto is_known_event = hana::contains(map_, e);
+    static_assert(is_known_event,
+                  "trying to add a callback to an unknown event");
+
+    map_[e].push_back(callback);
+  }
+#+END_SRC
+** triggering events
+#+BEGIN_SRC c++
+  template <typename Event, typename... Args>
+  void trigger(Event e, Args... a) const {
+    auto is_known_event = hana::contains(map_, e);
+    static_assert(is_known_event, "trying to trigger an unknown event");
+
+    for (auto &callback : map_[e])
+      callback(a...);
+  }
+#+END_SRC
+* Ссылки
+#+REVEAL_HTML: <iframe width="560" height="315" src="https://www.youtube.com/embed/emHnx_ZG0qc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 

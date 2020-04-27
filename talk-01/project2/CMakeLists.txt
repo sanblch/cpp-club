@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(conan-test)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../../cmake)
 
 set(CONAN_PACKAGES_DEFAULT "boost json")
 set(CONAN_OPTIONS_DEFAULT "boost:shared=True")

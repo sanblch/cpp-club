@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Boost::Hana: метапрограммирование</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Boost.png/220px-Boost.png">
+<h3 class="subtitle">Метапрограммирование с Boost::Hana</h3><p class="author">Александр Крутиков</p><p class="date">2020-04-28</p>
+</section>
+
+<section>
+<section id="slide-org2b9b857">
+<h2 id="org2b9b857">Работа с compile-time типами</h2>
+<div class="outline-text-2" id="text-org2b9b857">
+</div>
+</section>
+<section id="slide-org66d8bb5">
+<h3 id="org66d8bb5">Integral compile-time types</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">three</span> = <span style="color: #a45bad;">1</span> + <span style="color: #a45bad;">2</span>;
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">-&gt; int</span>
+static_assert<span style="color: #4f97d7;">(</span>three == <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">assertion</span>
+
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">three</span> = <span style="color: #a45bad;">1_c</span> + <span style="color: #a45bad;">2_c</span>;
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">-&gt; integral_constant&lt;int, 3&gt;</span>
+static_assert<span style="color: #4f97d7;">(</span>three == <span style="color: #a45bad;">3_c</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org39ef8a4">
+<h3 id="org39ef8a4">Integral compile-time type tuple</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++">BOOST_HANA_CONSTANT_CHECK<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">front</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">2</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">)</span> == <span style="color: #ce537a; font-weight: bold;">int_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orga145de9">
+<h3 id="orga145de9">Операции над кортежами compile-time типов</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Basic usage:</span>
+static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::zip_with<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">hana</span>::mult, <span style="color: #a45bad;">hana</span>::make_tuple<span style="color: #2d9574;">(</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">3</span>, <span style="color: #a45bad;">4</span><span style="color: #2d9574;">)</span>,
+                             <span style="color: #a45bad;">hana</span>::make_tuple<span style="color: #2d9574;">(</span><span style="color: #a45bad;">5</span>, <span style="color: #a45bad;">6</span>, <span style="color: #a45bad;">7</span>, <span style="color: #a45bad;">8</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span> ==
+                  <span style="color: #a45bad;">hana</span>::make_tuple<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">5</span>, <span style="color: #a45bad;">12</span>, <span style="color: #a45bad;">21</span>, <span style="color: #a45bad;">32</span><span style="color: #bc6ec5;">)</span>,
+              <span style="color: #2d9574;">""</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org62697de">
+<h2 id="org62697de">Пример: анализ размерности</h2>
+<div class="outline-text-2" id="text-org62697de">
+</div>
+</section>
+<section id="slide-orga7e429f">
+<h3 id="orga7e429f">Вычисление значений вместе с размерностью</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format off</span>
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>mass<span style="color: #bc6ec5;">&gt;</span>         <span style="color: #7590db;">m</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">10.3</span><span style="color: #bc6ec5;">}</span>;
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>length<span style="color: #bc6ec5;">&gt;</span>       <span style="color: #7590db;">d</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">3.6</span><span style="color: #bc6ec5;">}</span>;
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>time_<span style="color: #bc6ec5;">&gt;</span>        <span style="color: #7590db;">t</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">2.4</span><span style="color: #bc6ec5;">}</span>;
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>velocity<span style="color: #bc6ec5;">&gt;</span>     <span style="color: #7590db;">v</span><span style="color: #bc6ec5;">{</span>d / t<span style="color: #bc6ec5;">}</span>;
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>acceleration<span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">a</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">3.9</span><span style="color: #bc6ec5;">}</span>;
+  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Quantity&lt;force&gt;        f{m * v}; // Compiler error!</span>
+  <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span>force<span style="color: #bc6ec5;">&gt;</span>        <span style="color: #7590db;">f</span><span style="color: #bc6ec5;">{</span>m * a<span style="color: #bc6ec5;">}</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Works as expected</span>
+  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format on</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org7e71eaa">
+<h3 id="org7e71eaa">Определение базовых единиц</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format off</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">base dimensions                              M  L  T  I  K  J  N</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">mass</span>        = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">length</span>      = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">time_</span>       = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">charge</span>      = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">temperature</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">intensity</span>   = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">amount</span>      = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format on</span>
+</pre>
+</div>
+</section>
+<section id="slide-org5af253f">
+<h3 id="org5af253f">Определение производных единиц</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">composite dimensions</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format off</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">velocity</span>     = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, -<span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">M/T</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">acceleration</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, -<span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">M/T^2</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">force</span>        = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">tuple_c</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">1</span>, -<span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">ML/T^2</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format on</span>
+</pre>
+</div>
+</section>
+<section id="slide-orga5b899f">
+<h3 id="orga5b899f">Структура значения</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">Dimensions</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Quantity</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">double</span> <span style="color: #7590db;">value_</span>;
+  <span style="color: #4f97d7; font-weight: bold;">explicit</span> <span style="color: #bc6ec5; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">double</span> <span style="color: #7590db;">v</span><span style="color: #bc6ec5;">)</span> : value_<span style="color: #bc6ec5;">(</span>v<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{}</span>
+  <span style="color: #4f97d7; font-weight: bold;">explicit</span> <span style="color: #4f97d7; font-weight: bold;">operator</span> <span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #bc6ec5;">()</span> <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #bc6ec5;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> value_; <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orgd2fb87e">
+<h3 id="orgd2fb87e">Обработка ошибок</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">OtherDimensions</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">explicit</span> <span style="color: #bc6ec5; font-weight: bold;">Quantity</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">OtherDimensions</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">other</span><span style="color: #4f97d7;">)</span> : value_<span style="color: #4f97d7;">(</span>other.value_<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  static_assert<span style="color: #bc6ec5;">(</span>Dimensions<span style="color: #2d9574;">{}</span> == OtherDimensions<span style="color: #2d9574;">{}</span>,
+                <span style="color: #2d9574;">"Constructing quantities with incompatible dimensions!"</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org9b5d5a3">
+<h3 id="org9b5d5a3">Операция умножения</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">D1</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">D2</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #4f97d7; font-weight: bold;">operator</span><span style="color: #bc6ec5; font-weight: bold;">*</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D1</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">a</span>, <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D2</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">D</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">hana</span>::zip_with<span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">plus</span><span style="color: #67b11d;">&lt;&gt;{}</span>, D1<span style="color: #67b11d;">{}</span>, D2<span style="color: #67b11d;">{}</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D</span><span style="color: #bc6ec5;">&gt;{</span><span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #2d9574;">&gt;(</span>a<span style="color: #2d9574;">)</span> * <span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #2d9574;">&gt;(</span>b<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org6d6e5f1">
+<h3 id="org6d6e5f1">Операция деления</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">D1</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">D2</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #4f97d7; font-weight: bold;">operator</span><span style="color: #bc6ec5; font-weight: bold;">/</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D1</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">a</span>, <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D2</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">D</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">hana</span>::zip_with<span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">minus</span><span style="color: #67b11d;">&lt;&gt;{}</span>, D1<span style="color: #67b11d;">{}</span>, D2<span style="color: #67b11d;">{}</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #ce537a; font-weight: bold;">Quantity</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">D</span><span style="color: #bc6ec5;">&gt;{</span><span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #2d9574;">&gt;(</span>a<span style="color: #2d9574;">)</span> / <span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #2d9574;">&gt;(</span>b<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org0b8228a">
+<h2 id="org0b8228a">Работа со списками типов</h2>
+<div class="outline-text-2" id="text-org0b8228a">
+</div>
+</section>
+<section id="slide-orgf37e9ed">
+<h3 id="orgf37e9ed">Мапа членов структуры</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #4f97d7;">{</span>
+  BOOST_HANA_DEFINE_STRUCT<span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Person</span>, <span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::string, name<span style="color: #2d9574;">)</span>, <span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">unsigned</span> <span style="color: #ce537a; font-weight: bold;">short</span>, age<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #7590db;">john</span><span style="color: #4f97d7;">{</span><span style="color: #2d9574;">"John"</span>, <span style="color: #a45bad;">30</span><span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">accessors</span> = <span style="color: #a45bad;">hana</span>::accessors<span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Person</span><span style="color: #4f97d7;">&gt;()</span>;
+BOOST_HANA_CONSTANT_CHECK<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">hana</span>::first<span style="color: #bc6ec5;">(</span>accessors<span style="color: #2d9574;">[</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">size_c</span><span style="color: #67b11d;">&lt;</span><span style="color: #a45bad;">1</span><span style="color: #67b11d;">&gt;</span><span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span> ==
+                          BOOST_HANA_STRING<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"age"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">get_name</span> = <span style="color: #a45bad;">hana</span>::second<span style="color: #4f97d7;">(</span>accessors<span style="color: #bc6ec5;">[</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">size_c</span><span style="color: #2d9574;">&lt;</span><span style="color: #a45bad;">0</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span>;
+BOOST_HANA_RUNTIME_CHECK<span style="color: #4f97d7;">(</span>get_name<span style="color: #bc6ec5;">(</span>john<span style="color: #bc6ec5;">)</span> == <span style="color: #2d9574;">"John"</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orga5864bb">
+<h2 id="orga5864bb">Пример: генерация JSON с помощью рефлексии</h2>
+<div class="outline-text-2" id="text-orga5864bb">
+</div>
+</section>
+<section id="slide-org4604caa">
+<h3 id="org4604caa">nlohmann::json</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">name</span>;
+  <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">age</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orge3acd22">
+<h3 id="orge3acd22">сериализация nlohmann::json</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #7590db;">p</span> <span style="color: #4f97d7;">{</span><span style="color: #2d9574;">"Houston"</span>, <span style="color: #a45bad;">21</span><span style="color: #4f97d7;">}</span>;
+<span style="color: #a45bad;">nlohmann</span>::<span style="color: #ce537a; font-weight: bold;">json</span> <span style="color: #7590db;">j</span>;
+j<span style="color: #4f97d7;">[</span><span style="color: #2d9574;">"name"</span><span style="color: #4f97d7;">]</span> = p.name;
+j<span style="color: #4f97d7;">[</span><span style="color: #2d9574;">"age"</span><span style="color: #4f97d7;">]</span> = p.age;
+</pre>
+</div>
+</section>
+<section id="slide-org7fc1688">
+<h3 id="org7fc1688">десериализация nlohmann::json</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #a45bad;">nlohmann</span>::<span style="color: #ce537a; font-weight: bold;">json</span> <span style="color: #7590db;">j</span> = <span style="color: #4f97d7;">{</span><span style="color: #bc6ec5;">{</span><span style="color: #2d9574;">"name"</span>, <span style="color: #2d9574;">"Houston"</span><span style="color: #bc6ec5;">}</span>, <span style="color: #bc6ec5;">{</span><span style="color: #2d9574;">"age"</span>, <span style="color: #a45bad;">21</span><span style="color: #bc6ec5;">}</span><span style="color: #4f97d7;">}</span>;
+<span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #7590db;">p</span>;
+j.at<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"name"</span><span style="color: #4f97d7;">)</span>.get_to<span style="color: #4f97d7;">(</span>p.name<span style="color: #4f97d7;">)</span>;
+j.at<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"age"</span><span style="color: #4f97d7;">)</span>.get_to<span style="color: #4f97d7;">(</span>p.age<span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orgae68360">
+<h3 id="orgae68360">определение сериализации/десериализации</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">namespace</span> <span style="color: #a45bad;">nlohmann</span> <span style="color: #4f97d7;">{</span>
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #bc6ec5;">&lt;&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">adl_serializer</span><span style="color: #bc6ec5;">&lt;</span>Person<span style="color: #bc6ec5;">&gt;</span> <span style="color: #bc6ec5;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">to_json</span><span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">Person</span> &amp;<span style="color: #7590db;">t</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+    j<span style="color: #67b11d;">[</span><span style="color: #2d9574;">"name"</span><span style="color: #67b11d;">]</span> = p.name;
+    j<span style="color: #67b11d;">[</span><span style="color: #2d9574;">"age"</span><span style="color: #67b11d;">]</span> = p.age;
+  <span style="color: #2d9574;">}</span>
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">from_json</span><span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #ce537a; font-weight: bold;">Person</span> &amp;<span style="color: #7590db;">p</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+    j.at<span style="color: #67b11d;">(</span><span style="color: #2d9574;">"name"</span><span style="color: #67b11d;">)</span>.get_to<span style="color: #67b11d;">(</span>p.name<span style="color: #67b11d;">)</span>;
+    j.at<span style="color: #67b11d;">(</span><span style="color: #2d9574;">"age"</span><span style="color: #67b11d;">)</span>.get_to<span style="color: #67b11d;">(</span>p.age<span style="color: #67b11d;">)</span>;
+  <span style="color: #2d9574;">}</span>
+<span style="color: #bc6ec5;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org4cc3b6b">
+<h3 id="org4cc3b6b">Boost::Hana рефлексия</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Person</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">name</span>;
+  <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">age</span>;
+<span style="color: #4f97d7;">}</span>;
+BOOST_HANA_ADAPT_STRUCT<span style="color: #4f97d7;">(</span>Person, name, age<span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org1e1f845">
+<h3 id="org1e1f845">определение сериализации/десериализации с Boost::Hana</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">namespace</span> <span style="color: #a45bad;">nlohmann</span> <span style="color: #4f97d7;">{</span>
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #bc6ec5;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">adl_serializer</span><span style="color: #bc6ec5;">&lt;</span>
+    <span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">enable_if</span><span style="color: #2d9574;">&lt;</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::<span style="color: #a45bad;">Struct</span><span style="color: #67b11d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #67b11d;">&gt;</span>::value<span style="color: #2d9574;">&gt;</span>::<span style="color: #ce537a; font-weight: bold;">type</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #bc6ec5;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">to_json</span><span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">t</span><span style="color: #2d9574;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">from_json</span><span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">t</span><span style="color: #2d9574;">)</span>;
+<span style="color: #bc6ec5;">}</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">namespace nlohmann</span>
+</pre>
+</div>
+</section>
+<section id="slide-org8d32488">
+<h3 id="org8d32488">определение сериализации/десериализации с Boost::Hana</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">j["name"] = p.name;</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">j["age"] = p.age;</span>
+<span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">to_json</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">t</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::for_each<span style="color: #bc6ec5;">(</span>
+      <span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::accessors<span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;()</span>, <span style="color: #2d9574;">[</span>&amp;<span style="color: #7590db;">j</span>, &amp;<span style="color: #7590db;">t</span><span style="color: #2d9574;">](</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">meta</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+        j<span style="color: #67b11d;">[</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::to<span style="color: #b1951d;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">char</span> *<span style="color: #b1951d;">&gt;(</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::first<span style="color: #4f97d7;">(</span>meta<span style="color: #4f97d7;">)</span><span style="color: #b1951d;">)</span><span style="color: #67b11d;">]</span> =
+            <span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::second<span style="color: #67b11d;">(</span>meta<span style="color: #67b11d;">)(</span>t<span style="color: #67b11d;">)</span>;
+      <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org8984fa2">
+<h3 id="org8984fa2">определение сериализации/десериализации с Boost::Hana</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">j.at("name").get_to(p.name);</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">j.at("age").get_to(p.age);</span>
+<span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">from_json</span><span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">json</span> &amp;<span style="color: #7590db;">j</span>, <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">t</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::for_each<span style="color: #bc6ec5;">(</span>
+      <span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::accessors<span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;()</span>, <span style="color: #2d9574;">[</span>&amp;<span style="color: #7590db;">j</span>, &amp;<span style="color: #7590db;">t</span><span style="color: #2d9574;">](</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">meta</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+        j.at<span style="color: #67b11d;">(</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::to<span style="color: #b1951d;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">char</span> *<span style="color: #b1951d;">&gt;(</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::first<span style="color: #4f97d7;">(</span>meta<span style="color: #4f97d7;">)</span><span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span>
+            .get_to<span style="color: #67b11d;">(</span><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">hana</span>::second<span style="color: #b1951d;">(</span>meta<span style="color: #b1951d;">)(</span>t<span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span>;
+      <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org3ed06ed">
+<h2 id="org3ed06ed">Работа с мапой типов</h2>
+<div class="outline-text-2" id="text-org3ed06ed">
+</div>
+</section>
+<section id="slide-org6b3dc03">
+<h3 id="org6b3dc03">compile-time строки</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">Hello_world</span> = <span style="color: #2d9574;">"hello"</span>_s + <span style="color: #2d9574;">" world"</span>_s;
+static_assert<span style="color: #4f97d7;">(</span>Hello_world == <span style="color: #2d9574;">"hello world"</span>_s<span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org693144b">
+<h3 id="org693144b">map</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  BOOST_HANA_RUNTIME_CHECK<span style="color: #bc6ec5;">(</span>
+      <span style="color: #a45bad;">hana</span>::make_map<span style="color: #2d9574;">(</span><span style="color: #a45bad;">hana</span>::make_pair<span style="color: #67b11d;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">char_c</span><span style="color: #b1951d;">&lt;</span><span style="color: #2d9574;">'a'</span><span style="color: #b1951d;">&gt;</span>, <span style="color: #2d9574;">"foobar"</span>s<span style="color: #67b11d;">)</span>,
+                     <span style="color: #a45bad;">hana</span>::make_pair<span style="color: #67b11d;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">type_c</span><span style="color: #b1951d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span> &amp;&amp;<span style="color: #b1951d;">&gt;</span>, <span style="color: #a45bad;">nullptr</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span> ==
+      <span style="color: #a45bad;">hana</span>::make_map<span style="color: #2d9574;">(</span><span style="color: #a45bad;">hana</span>::make_pair<span style="color: #67b11d;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">type_c</span><span style="color: #b1951d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span> &amp;&amp;<span style="color: #b1951d;">&gt;</span>, <span style="color: #b1951d;">(</span><span style="color: #ce537a; font-weight: bold;">void</span> *<span style="color: #b1951d;">)</span><span style="color: #a45bad;">0</span><span style="color: #67b11d;">)</span>,
+                     <span style="color: #a45bad;">hana</span>::make_pair<span style="color: #67b11d;">(</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">char_c</span><span style="color: #b1951d;">&lt;</span><span style="color: #2d9574;">'a'</span><span style="color: #b1951d;">&gt;</span>, <span style="color: #2d9574;">"foobar"</span>s<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org4be0ce9">
+<h2 id="org4be0ce9">Пример: очередь сообщений</h2>
+<div class="outline-text-2" id="text-org4be0ce9">
+</div>
+</section>
+<section id="slide-org632abc8">
+<h3 id="org632abc8">Пример реализации</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">events</span> = make_event_system<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"foo"</span>_e = <span style="color: #ce537a; font-weight: bold;">function</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">void</span><span style="color: #67b11d;">(</span><span style="color: #7590db;">string</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>,
+                                  <span style="color: #2d9574;">"bar"</span>_e = <span style="color: #ce537a; font-weight: bold;">function</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">void</span><span style="color: #67b11d;">(</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>,
+                                  <span style="color: #2d9574;">"baz"</span>_e = <span style="color: #ce537a; font-weight: bold;">function</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">void</span><span style="color: #67b11d;">(</span><span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">)</span>;
+
+  events.on<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"foo"</span>_e, <span style="color: #2d9574;">[](</span><span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">s</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span> cout &lt;&lt; <span style="color: #2d9574;">"foo with '"</span> &lt;&lt; s &lt;&lt; <span style="color: #2d9574;">"'!\n"</span>; <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+  events.on<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"foo"</span>_e,
+            <span style="color: #2d9574;">[](</span><span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">s</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span> cout &lt;&lt; <span style="color: #2d9574;">"foo with '"</span> &lt;&lt; s &lt;&lt; <span style="color: #2d9574;">"' again!\n"</span>; <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+  events.on<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"bar"</span>_e, <span style="color: #2d9574;">[](</span><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">i</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span> cout &lt;&lt; <span style="color: #2d9574;">"bar with '"</span> &lt;&lt; i &lt;&lt; <span style="color: #2d9574;">"'!\n"</span>; <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+  events.on<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"baz"</span>_e, <span style="color: #2d9574;">[](</span><span style="color: #ce537a; font-weight: bold;">double</span> <span style="color: #7590db;">d</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span> cout &lt;&lt; <span style="color: #2d9574;">"baz with '"</span> &lt;&lt; d &lt;&lt; <span style="color: #2d9574;">"'!\n"</span>; <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">events.on("unknown"_e, []() { }); // compiler error!</span>
+
+  events.trigger<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"foo"</span>_e, <span style="color: #2d9574;">"hello"</span><span style="color: #bc6ec5;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">no overhead for event lookup</span>
+  events.trigger<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"bar"</span>_e, <span style="color: #a45bad;">4</span><span style="color: #bc6ec5;">)</span>;
+  events.trigger<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"baz"</span>_e, <span style="color: #a45bad;">3.3</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">events.trigger("unknown"_e); // compiler error!</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org2316214">
+<h3 id="org2316214">Хранение событий</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span>... <span style="color: #ce537a; font-weight: bold;">Events</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">event_system</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span>... <span style="color: #ce537a; font-weight: bold;">Events</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span>... <span style="color: #ce537a; font-weight: bold;">Signatures</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">event_system</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">pair</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Events</span>, <span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">basic_type</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Signatures</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">&gt;</span>...<span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">map</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #a45bad;">hana</span>::<span style="color: #ce537a; font-weight: bold;">pair</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Events</span>, <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #67b11d;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">function</span><span style="color: #b1951d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Signatures</span><span style="color: #b1951d;">&gt;</span><span style="color: #67b11d;">&gt;</span><span style="color: #2d9574;">&gt;</span>...<span style="color: #bc6ec5;">&gt;</span> <span style="color: #7590db;">map_</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org4333f91">
+<h3 id="org4333f91">Регистрация событий</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">Event</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">F</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">on</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Event</span> <span style="color: #7590db;">e</span>, <span style="color: #ce537a; font-weight: bold;">F</span> <span style="color: #7590db;">callback</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">is_known_event</span> = <span style="color: #a45bad;">hana</span>::contains<span style="color: #bc6ec5;">(</span>map_, e<span style="color: #bc6ec5;">)</span>;
+  static_assert<span style="color: #bc6ec5;">(</span>is_known_event,
+                <span style="color: #2d9574;">"trying to add a callback to an unknown event"</span><span style="color: #bc6ec5;">)</span>;
+
+  map_<span style="color: #bc6ec5;">[</span>e<span style="color: #bc6ec5;">]</span>.push_back<span style="color: #bc6ec5;">(</span>callback<span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-orgaf1c5d8">
+<h3 id="orgaf1c5d8">triggering events</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">Event</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span>... <span style="color: #ce537a; font-weight: bold;">Args</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">trigger</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Event</span> <span style="color: #7590db;">e</span>, <span style="color: #ce537a; font-weight: bold;">Args</span>... <span style="color: #7590db;">a</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">is_known_event</span> = <span style="color: #a45bad;">hana</span>::contains<span style="color: #bc6ec5;">(</span>map_, e<span style="color: #bc6ec5;">)</span>;
+  static_assert<span style="color: #bc6ec5;">(</span>is_known_event, <span style="color: #2d9574;">"trying to trigger an unknown event"</span><span style="color: #bc6ec5;">)</span>;
+
+  <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">callback</span> : map_<span style="color: #2d9574;">[</span>e<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span>
+    callback<span style="color: #bc6ec5;">(</span>a...<span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgb79e849">
+<h2 id="orgb79e849">Ссылки</h2>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/emHnx_ZG0qc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>
