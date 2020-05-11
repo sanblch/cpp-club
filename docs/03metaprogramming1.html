@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Кейсы использования метапрограммирования 1</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+<h3 class="subtitle">Кейсы использования метапрограммирования 1</h3><p class="author">Александр Крутиков</p><p class="date">2020-05-12</p>
+</section>
+
+<section>
+<section id="slide-org7e71389">
+<h2 id="org7e71389">Specification Pattern</h2>
+<div class="outline-text-2" id="text-org7e71389">
+</div>
+</section>
+<section id="slide-orgb393f10">
+<h3 id="orgb393f10">Принцип SOLID открытости/закрытости</h3>
+<ul>
+<li>открытость для расширения, закрытость для модификации</li>
+<li>плохо изменять старый стабильный функционирующий код</li>
+<li>хорошо создавать достаточно общие конструкции, расширяемые извне</li>
+<li>пример фильтрация продуктов</li>
+
+</ul>
+</section>
+<section id="slide-org04a741b">
+<h3 id="org04a741b">Сценарий</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">enum</span> <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #4f97d7;">{</span> <span style="color: #7590db;">Red</span>, <span style="color: #7590db;">Green</span>, <span style="color: #7590db;">Blue</span> <span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">enum</span> <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Size</span> <span style="color: #4f97d7;">{</span> <span style="color: #7590db;">Small</span>, <span style="color: #7590db;">Medium</span>, <span style="color: #7590db;">Large</span> <span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Product</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">name</span>;
+  <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span>;
+  <span style="color: #ce537a; font-weight: bold;">Size</span> <span style="color: #7590db;">size</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orgbea7643">
+<h3 id="orgbea7643">Фильтрация продуктов</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ProductFilter</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">Items</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span>Product<span style="color: #bc6ec5;">&gt;</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_color</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">result</span>;
+    <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">i</span> : items<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>i.color == color<span style="color: #67b11d;">)</span>
+        result.push_back<span style="color: #67b11d;">(</span>i<span style="color: #67b11d;">)</span>;
+      <span style="color: #4f97d7; font-weight: bold;">return</span> result;
+    <span style="color: #2d9574;">}</span>
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org6965b11">
+<h3 id="org6965b11">Фильтрация продуктов</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ProductFilter</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">Items</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span>Product<span style="color: #bc6ec5;">&gt;</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_color</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_size</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Size</span> <span style="color: #7590db;">size</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">result</span>;
+    <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">i</span> : items<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>i.size == size<span style="color: #67b11d;">)</span>
+        result.push_back<span style="color: #67b11d;">(</span>i<span style="color: #67b11d;">)</span>;
+      <span style="color: #4f97d7; font-weight: bold;">return</span> result;
+    <span style="color: #2d9574;">}</span>
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org1d50056">
+<h3 id="org1d50056">Фильтрация продуктов</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ProductFilter</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">Items</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span>Product<span style="color: #bc6ec5;">&gt;</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_color</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_size</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Size</span> <span style="color: #7590db;">size</span><span style="color: #bc6ec5;">)</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #bc6ec5; font-weight: bold;">by_color_and_size</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">items</span>, <span style="color: #ce537a; font-weight: bold;">Size</span> <span style="color: #7590db;">size</span>, <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">Items</span> <span style="color: #7590db;">result</span>;
+    <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">i</span> : items<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>i.color == color &amp;&amp; i.size == size<span style="color: #67b11d;">)</span>
+        result.push_back<span style="color: #67b11d;">(</span>i<span style="color: #67b11d;">)</span>;
+      <span style="color: #4f97d7; font-weight: bold;">return</span> result;
+    <span style="color: #2d9574;">}</span>
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org730df05">
+<h3 id="org730df05">ISpecification and IFilter</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ISpecification</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #bc6ec5; font-weight: bold;">is_satisfied</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">item</span><span style="color: #bc6ec5;">)</span> = <span style="color: #a45bad;">0</span>;
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">IFilter</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #bc6ec5;">&gt;</span> <span style="color: #bc6ec5; font-weight: bold;">filter</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span> &amp;<span style="color: #7590db;">items</span>,
+                                <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span> &amp;<span style="color: #7590db;">spec</span><span style="color: #bc6ec5;">)</span> = <span style="color: #a45bad;">0</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org1a616e9">
+<h3 id="org1a616e9">Новый фильтр</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ProductFilter</span> : <span style="color: #ce537a; font-weight: bold;">IFilter</span><span style="color: #4f97d7;">&lt;</span>Product<span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">Products</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span>Product<span style="color: #bc6ec5;">&gt;</span>;
+  <span style="color: #ce537a; font-weight: bold;">Products</span> <span style="color: #bc6ec5; font-weight: bold;">filter</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">Products</span> &amp;<span style="color: #7590db;">items</span>,
+                  <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #2d9574;">&lt;</span>Product<span style="color: #2d9574;">&gt;</span> &amp;<span style="color: #7590db;">spec</span><span style="color: #bc6ec5;">)</span> <span style="color: #4f97d7; font-weight: bold;">override</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">Products</span> <span style="color: #7590db;">result</span>;
+    <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">p</span> : items<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>spec.is_satisfied<span style="color: #b1951d;">(</span>p<span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span>
+        result.push_back<span style="color: #67b11d;">(</span>p<span style="color: #67b11d;">)</span>;
+    <span style="color: #2d9574;">}</span>
+    <span style="color: #4f97d7; font-weight: bold;">return</span> result;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orged2a999">
+<h3 id="orged2a999">Создание спецификации</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">ColorSpecification</span> : <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #4f97d7;">&lt;</span>Product<span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span>;
+  <span style="color: #4f97d7; font-weight: bold;">explicit</span> <span style="color: #bc6ec5; font-weight: bold;">ColorSpecification</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Color</span> <span style="color: #7590db;">color</span><span style="color: #bc6ec5;">)</span> : color<span style="color: #bc6ec5;">{</span>color<span style="color: #bc6ec5;">}</span> <span style="color: #bc6ec5;">{}</span>
+  <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #bc6ec5; font-weight: bold;">is_satisfied</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">Product</span> &amp;<span style="color: #7590db;">item</span><span style="color: #bc6ec5;">)</span> <span style="color: #4f97d7; font-weight: bold;">override</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">return</span> item-&gt;color == color;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org618f719">
+<h3 id="org618f719">Использование нового фильтра</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">Product</span> <span style="color: #7590db;">apple</span><span style="color: #4f97d7;">{</span><span style="color: #2d9574;">"Apple"</span>, <span style="color: #a45bad;">Color</span>::Green, <span style="color: #a45bad;">Size</span>::Small<span style="color: #4f97d7;">}</span>;
+<span style="color: #ce537a; font-weight: bold;">Product</span> <span style="color: #7590db;">tree</span><span style="color: #4f97d7;">{</span><span style="color: #2d9574;">"Tree"</span>, <span style="color: #a45bad;">Color</span>::Green, <span style="color: #a45bad;">Size</span>::Large<span style="color: #4f97d7;">}</span>;
+<span style="color: #ce537a; font-weight: bold;">Product</span> <span style="color: #7590db;">house</span><span style="color: #4f97d7;">{</span><span style="color: #2d9574;">"House"</span>, <span style="color: #a45bad;">Color</span>::Blue, <span style="color: #a45bad;">Size</span>::Large<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Product</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">all</span><span style="color: #4f97d7;">{</span>apple, tree, house<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #ce537a; font-weight: bold;">ProductFilter</span> <span style="color: #7590db;">pf</span>;
+<span style="color: #ce537a; font-weight: bold;">ColorSpecification</span> <span style="color: #bc6ec5; font-weight: bold;">green</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">Color</span>::Green<span style="color: #4f97d7;">)</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">green_things</span> = pf.filter<span style="color: #4f97d7;">(</span>all, green<span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> &amp;<span style="color: #7590db;">x</span> : green_things<span style="color: #4f97d7;">)</span>
+  <span style="color: #a45bad;">std</span>::cout &lt;&lt; x-&gt;name &lt;&lt; <span style="color: #2d9574;">" is green "</span> &lt;&lt; <span style="color: #a45bad;">std</span>::endl;
+</pre>
+</div>
+</section>
+<section id="slide-org3763ae2">
+<h3 id="org3763ae2">AndSpecification</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">AndSpecification</span> : <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #bc6ec5;">&gt;</span> &amp;<span style="color: #7590db;">first</span>;
+  <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #bc6ec5;">&gt;</span> &amp;<span style="color: #7590db;">second</span>;
+
+  <span style="color: #4f97d7; font-weight: bold;">explicit</span> <span style="color: #bc6ec5; font-weight: bold;">AndSpecification</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span> &amp;<span style="color: #7590db;">first</span>, <span style="color: #ce537a; font-weight: bold;">ISpecification</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span> &amp;<span style="color: #7590db;">second</span><span style="color: #bc6ec5;">)</span>
+      : first<span style="color: #bc6ec5;">{</span>first<span style="color: #bc6ec5;">}</span>, second<span style="color: #bc6ec5;">{</span>second<span style="color: #bc6ec5;">}</span> <span style="color: #bc6ec5;">{}</span>
+  <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #bc6ec5; font-weight: bold;">is_satisfied</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> &amp;<span style="color: #7590db;">item</span><span style="color: #bc6ec5;">)</span> <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">override</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">return</span> first.is_satisfied<span style="color: #2d9574;">(</span>item<span style="color: #2d9574;">)</span> &amp;&amp; second.is_satisfied<span style="color: #2d9574;">(</span>item<span style="color: #2d9574;">)</span>;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org509d62b">
+<h3 id="org509d62b">Фильтрация по размеру и цвету</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">ProductFilter</span> <span style="color: #7590db;">pf</span>;
+<span style="color: #ce537a; font-weight: bold;">ColorSpecification</span> <span style="color: #bc6ec5; font-weight: bold;">green</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">Color</span>::Green<span style="color: #4f97d7;">)</span>;
+<span style="color: #ce537a; font-weight: bold;">SizeSpecification</span> <span style="color: #bc6ec5; font-weight: bold;">big</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">Size</span>::Large<span style="color: #4f97d7;">)</span>;
+<span style="color: #ce537a; font-weight: bold;">AndSpecification</span><span style="color: #4f97d7;">&lt;</span>Product<span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">green_and_big</span><span style="color: #4f97d7;">{</span>big, green<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">big_green_things</span> = pf.filter<span style="color: #4f97d7;">(</span>all, green_and_big<span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">auto</span>&amp; <span style="color: #7590db;">x</span> : big_green_things<span style="color: #4f97d7;">)</span>
+  <span style="color: #a45bad;">std</span>::cout &lt;&lt; x-&gt;name &lt;&lt; <span style="color: #2d9574;">" is big and green"</span> &lt;&lt; <span style="color: #a45bad;">std</span>::endl;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org8988fa2">
+<h2 id="org8988fa2">CRTP</h2>
+<div class="outline-text-2" id="text-org8988fa2">
+</div>
+</section>
+<section id="slide-org2925dfc">
+<h3 id="org2925dfc">Интерфейсы поведения</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">IEye</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">open</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">look</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">close</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">IMouth</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">open</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">eat</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+  <span style="color: #4f97d7; font-weight: bold;">virtual</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">close</span><span style="color: #bc6ec5;">()</span> = <span style="color: #a45bad;">0</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orga2f8e03">
+<h3 id="orga2f8e03">Использование</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Cyclop</span> : <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #ce537a; font-weight: bold;">IEye</span>, <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #ce537a; font-weight: bold;">IMouth</span> <span style="color: #4f97d7;">{</span>
+  ...
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">look_for_banana</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">IEye</span> *<span style="color: #7590db;">eye</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  eye-&gt;open<span style="color: #bc6ec5;">()</span>;
+  eye-&gt;look<span style="color: #bc6ec5;">()</span>;
+  eye-&gt;close<span style="color: #bc6ec5;">()</span>;
+<span style="color: #4f97d7;">}</span>
+<span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">eat_banana</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">IMoutn</span> *<span style="color: #7590db;">mouth</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">cyclop</span> = <span style="color: #a45bad;">std</span>::make_unique<span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Cyclop</span><span style="color: #bc6ec5;">&gt;()</span>;
+  look_for_banana<span style="color: #bc6ec5;">(</span>cyclop.get<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org03fb145">
+<h3 id="org03fb145">Определение</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Base</span> <span style="color: #4f97d7;">{}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Derived</span> : <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #ce537a; font-weight: bold;">Base</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Derived</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org0babc55">
+<h3 id="org0babc55">Статический полиморфизм</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Base</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">interface</span><span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>*<span style="color: #2d9574;">&gt;(</span><span style="color: #4f97d7; font-weight: bold;">this</span><span style="color: #2d9574;">)</span>-&gt;implementation<span style="color: #2d9574;">()</span>;
+  <span style="color: #bc6ec5;">}</span>
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">static_func</span><span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #a45bad;">T</span>::static_sub_func<span style="color: #2d9574;">()</span>;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Derived</span> : <span style="color: #ce537a; font-weight: bold;">Base</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Derived</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">implementation</span><span style="color: #bc6ec5;">()</span>;
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">static_sub_func</span><span style="color: #bc6ec5;">()</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orged5d46e">
+<h3 id="orged5d46e">Реализация</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Cyclop</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">eye_open</span><span style="color: #bc6ec5;">()</span>;
+  <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">mouth_eat</span><span style="color: #bc6ec5;">()</span>;
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Eye</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #bc6ec5; font-weight: bold;">open</span><span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span> <span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>*<span style="color: #2d9574;">&gt;(</span><span style="color: #4f97d7; font-weight: bold;">this</span><span style="color: #2d9574;">)</span>-&gt;eye_open<span style="color: #2d9574;">()</span>;
+<span style="color: #bc6ec5;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-orgd23693c">
+<h3 id="orgd23693c">Реализация</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Cyclop</span> : <span style="color: #ce537a; font-weight: bold;">Eye</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Cyclop</span><span style="color: #4f97d7;">&gt;</span>, <span style="color: #ce537a; font-weight: bold;">Mouth</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Cyclop</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span> ... <span style="color: #4f97d7;">}</span>
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">look_at_banana</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eye</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Cyclop</span><span style="color: #bc6ec5;">&gt;</span>* <span style="color: #7590db;">eye</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  eye-&gt;open<span style="color: #bc6ec5;">()</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org309606f">
+<h3 id="org309606f">Реализация</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">cyclop</span> = <span style="color: #a45bad;">std</span>::make_unique<span style="color: #bc6ec5;">&lt;</span>Cyclop<span style="color: #bc6ec5;">&gt;()</span>;
+  look_at_banana<span style="color: #bc6ec5;">(</span>cyclop.get<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org3dd8843">
+<h3 id="org3dd8843">Mixin</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Author</span> : <span style="color: #ce537a; font-weight: bold;">Format</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Author</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">english</span>;
+  <span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">russian</span>;
+<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">Format</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #7590db;">draw</span> <span style="color: #bc6ec5;">{</span>
+    <span style="color: #a45bad;">std</span>::cout &lt;&lt; <span style="color: #4f97d7; font-weight: bold;">static_cast</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>*<span style="color: #2d9574;">&gt;(</span><span style="color: #4f97d7; font-weight: bold;">this</span><span style="color: #2d9574;">)</span>-&gt;english &lt;&lt; <span style="color: #a45bad;">std</span>::endl;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

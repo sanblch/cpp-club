@@ -1,0 +1,243 @@
+#+TITLE: Кейсы использования метапрограммирования 1
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/03metaprogramming1
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Кейсы использования метапрограммирования 1</h3><p class="author">%a</p><p class="date">2020-05-12</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Specification Pattern
+** Принцип SOLID открытости/закрытости
+- открытость для расширения, закрытость для модификации
+- плохо изменять старый стабильный функционирующий код
+- хорошо создавать достаточно общие конструкции, расширяемые извне
+- пример фильтрация продуктов
+** Сценарий
+#+BEGIN_SRC c++
+  enum class Color { Red, Green, Blue };
+  enum class Size { Small, Medium, Large };
+
+  struct Product {
+    std::string name;
+    Color color;
+    Size size;
+  };
+#+END_SRC
+** Фильтрация продуктов
+#+BEGIN_SRC c++
+  struct ProductFilter {
+    using Items = std::vector<Product>;
+    static Items by_color(Items items, Color color) {
+      Items result;
+      for (const auto &i : items) {
+        if (i.color == color)
+          result.push_back(i);
+        return result;
+      }
+    }
+  };
+#+END_SRC
+** Фильтрация продуктов
+#+BEGIN_SRC c++
+  struct ProductFilter {
+    using Items = std::vector<Product>;
+    static Items by_color(Items items, Color color);
+    static Items by_size(Items items, Size size) {
+      Items result;
+      for (const auto &i : items) {
+        if (i.size == size)
+          result.push_back(i);
+        return result;
+      }
+    }
+  };
+#+END_SRC
+** Фильтрация продуктов
+#+BEGIN_SRC c++
+  struct ProductFilter {
+    using Items = std::vector<Product>;
+    static Items by_color(Items items, Color color);
+    static Items by_size(Items items, Size size);
+    static Items by_color_and_size(Items items, Size size, Color color) {
+      Items result;
+      for (const auto &i : items) {
+        if (i.color == color && i.size == size)
+          result.push_back(i);
+        return result;
+      }
+    }
+  };
+#+END_SRC
+** ISpecification and IFilter
+#+BEGIN_SRC c++
+  template <typename T> struct ISpecification {
+    virtual bool is_satisfied(const T &item) = 0;
+  };
+  template <typename T> struct IFilter {
+    virtual std::vector<T> filter(const std::vector<T> &items,
+                                  const ISpecification<T> &spec) = 0;
+  };
+#+END_SRC
+** Новый фильтр
+#+BEGIN_SRC c++
+  struct ProductFilter : IFilter<Product> {
+    using Products = std::vector<Product>;
+    Products filter(const Products &items,
+                    ISpecification<Product> &spec) override {
+      Products result;
+      for (const auto &p : items) {
+        if (spec.is_satisfied(p))
+          result.push_back(p);
+      }
+      return result;
+    }
+  };
+#+END_SRC
+** Создание спецификации
+#+BEGIN_SRC c++
+  struct ColorSpecification : ISpecification<Product> {
+    Color color;
+    explicit ColorSpecification(Color color) : color{color} {}
+    bool is_satisfied(const Product &item) override {
+      return item->color == color;
+    }
+  };
+#+END_SRC
+** Использование нового фильтра
+#+BEGIN_SRC c++
+  Product apple{"Apple", Color::Green, Size::Small};
+  Product tree{"Tree", Color::Green, Size::Large};
+  Product house{"House", Color::Blue, Size::Large};
+
+  std::vector<Product> all{apple, tree, house};
+
+  ProductFilter pf;
+  ColorSpecification green(Color::Green);
+
+  auto green_things = pf.filter(all, green);
+  for (const auto &x : green_things)
+    std::cout << x->name << " is green " << std::endl;
+#+END_SRC
+** AndSpecification
+#+BEGIN_SRC c++
+  template <typename T> struct AndSpecification : ISpecification<T> {
+    ISpecification<T> &first;
+    ISpecification<T> &second;
+
+    explicit AndSpecification(ISpecification<T> &first, ISpecification<T> &second)
+        : first{first}, second{second} {}
+    bool is_satisfied(const T &item) const override {
+      return first.is_satisfied(item) && second.is_satisfied(item);
+    }
+  };
+#+END_SRC
+** Фильтрация по размеру и цвету
+#+BEGIN_SRC c++
+ProductFilter pf;
+ColorSpecification green(Color::Green);
+SizeSpecification big(Size::Large);
+AndSpecification<Product> green_and_big{big, green};
+
+auto big_green_things = pf.filter(all, green_and_big);
+for (const auto& x : big_green_things)
+  std::cout << x->name << " is big and green" << std::endl;
+#+END_SRC
+* CRTP
+** Интерфейсы поведения
+#+BEGIN_SRC c++
+class IEye {
+  virtual void open() = 0;
+  virtual void look() = 0;
+  virtual void close() = 0;
+};
+class IMouth {
+  virtual void open() = 0;
+  virtual void eat() = 0;
+  virtual void close() = 0;
+};
+#+END_SRC
+** Использование
+#+BEGIN_SRC c++
+  class Cyclop : public IEye, public IMouth {
+    ...
+  };
+  void look_for_banana(IEye *eye) {
+    eye->open();
+    eye->look();
+    eye->close();
+  }
+  void eat_banana(IMoutn *mouth);
+  int main() {
+    auto cyclop = std::make_unique<Cyclop>();
+    look_for_banana(cyclop.get());
+  }
+#+END_SRC
+** Определение
+#+BEGIN_SRC c++
+template<class T>
+class Base {};
+
+class Derived : public Base<Derived> {};
+#+END_SRC
+** Статический полиморфизм
+#+BEGIN_SRC c++
+template <class T>
+struct Base {
+  void interface() {
+    static_cast<T*>(this)->implementation();
+  }
+  static void static_func() {
+    T::static_sub_func();
+  }
+};
+struct Derived : Base<Derived> {
+  void implementation();
+  static void static_sub_func();
+};
+#+END_SRC
+** Реализация
+#+BEGIN_SRC c++
+class Cyclop {
+  void eye_open();
+  void mouth_eat();
+};
+template <typename T>
+class Eye {
+  open() { static_cast<T*>(this)->eye_open();
+};
+#+END_SRC
+** Реализация
+#+BEGIN_SRC c++
+class Cyclop : Eye<Cyclop>, Mouth<Cyclop> { ... }
+template <typename T>
+void look_at_banana(Eye<Cyclop>* eye) {
+  eye->open();
+}
+#+END_SRC
+** Реализация
+#+BEGIN_SRC c++
+int main() {
+  auto cyclop = std::make_unique<Cyclop>();
+  look_at_banana(cyclop.get());
+}
+#+END_SRC
+** Mixin
+#+BEGIN_SRC c++
+  struct Author : Format<Author> {
+    string english;
+    string russian;
+  };
+
+  template<typename T>
+  struct Format {
+    std::string draw {
+      std::cout << static_cast<T*>(this)->english << std::endl;
+    }
+  };
+#+END_SRC
