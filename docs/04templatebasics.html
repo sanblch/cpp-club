@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Теория шаблонного программирования</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+<h3 class="subtitle">Теория шаблонного программирования</h3><p class="author">Александр Крутиков</p><p class="date">2020-05-26</p>
+</section>
+
+<section>
+<section id="slide-orgef9b332">
+<h2 id="orgef9b332">Кратко теория</h2>
+<div class="outline-text-2" id="text-orgef9b332">
+</div>
+</section>
+<section id="slide-orgebbb441">
+<h3 id="orgebbb441">Определения</h3>
+<ul>
+<li>Шаблон (template)</li>
+<li>Специализация шаблона (template specialization)</li>
+<li>Частичная специализация шаблона (partial template specialization)</li>
+
+</ul>
+</section>
+<section id="slide-orgcdc1fc6">
+<h3 id="orgcdc1fc6">Типы шаблонов</h3>
+<ul>
+<li>По типу абстракции</li>
+<li>По типу аргументов</li>
+<li>По числу аргументов</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3c523a3">
+<h2 id="org3c523a3">&lt;type_traits&gt;</h2>
+<div class="outline-text-2" id="text-org3c523a3">
+</div>
+</section>
+<section id="slide-org0236ef3">
+<h3 id="org0236ef3">std::integral_constant</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">v</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">integral_constant</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">value</span> = v;
+  <span style="color: #4f97d7; font-weight: bold;">typedef</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #ce537a; font-weight: bold;">value_type</span>;
+  <span style="color: #4f97d7; font-weight: bold;">typedef</span> <span style="color: #ce537a; font-weight: bold;">integral_constant</span> <span style="color: #ce537a; font-weight: bold;">type</span>;
+  <span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">operator</span> <span style="color: #ce537a; font-weight: bold;">value_type</span><span style="color: #bc6ec5;">()</span> <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">noexcept</span> <span style="color: #bc6ec5;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> value; <span style="color: #bc6ec5;">}</span>
+  <span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #ce537a; font-weight: bold;">value_type</span> <span style="color: #4f97d7; font-weight: bold;">operator</span><span style="color: #bc6ec5; font-weight: bold;">()</span><span style="color: #bc6ec5;">()</span> <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7; font-weight: bold;">noexcept</span> <span style="color: #bc6ec5;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> value; <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org49312fb">
+<h3 id="org49312fb">std::true_type</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">true_type</span> = <span style="color: #ce537a; font-weight: bold;">integral_constant</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">bool</span>, <span style="color: #a45bad;">true</span><span style="color: #4f97d7;">&gt;</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org5a017eb">
+<h3 id="org5a017eb">std::false_type</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">false_type</span> = <span style="color: #ce537a; font-weight: bold;">integral_constant</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">bool</span>, <span style="color: #a45bad;">false</span><span style="color: #4f97d7;">&gt;</span>;
+</pre>
+</div>
+</section>
+<section id="slide-org58cf079">
+<h3 id="org58cf079">std::is_same</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">U</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">is_same</span> : <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">false_type</span> <span style="color: #4f97d7;">{}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">is_same</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> : <span style="color: #a45bad;">std</span>::true_type <span style="color: #4f97d7;">{}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span> <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">U</span> <span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">inline</span> <span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #7590db;">is_same_v</span> = <span style="color: #a45bad;">is_same</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #ce537a; font-weight: bold;">U</span><span style="color: #4f97d7;">&gt;</span>::value;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org5121dc0">
+<h2 id="org5121dc0">SFINAE</h2>
+<div class="outline-text-2" id="text-org5121dc0">
+</div>
+</section>
+<section id="slide-orgaa0c0f0">
+<h3 id="orgaa0c0f0">Определение</h3>
+<p>
+Substitution Failure Is Not An Error
+</p>
+</section>
+<section id="slide-orgc2aa845">
+<h3 id="orgc2aa845">Алгоритм</h3>
+<ul>
+<li>Поиск функции по имени</li>
+<li>Выделение шаблонных аргументов (отмена при ошибке подстановки)</li>
+<li>Конечный список подходящих функций</li>
+<li>Выбор лучшей походящей функции (ошибка, если больше одного кандидата)</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3943749">
+<h2 id="org3943749">std::enable_if</h2>
+<div class="outline-text-2" id="text-org3943749">
+</div>
+</section>
+<section id="slide-orge4c3c94">
+<h3 id="orge4c3c94">Реализация</h3>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #7590db;">B</span>, <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span> = <span style="color: #ce537a; font-weight: bold;">void</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">enable_if</span> <span style="color: #4f97d7;">{}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">enable_if</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">true</span>, <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">typedef</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #ce537a; font-weight: bold;">type</span>; <span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span> <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #7590db;">B</span>, <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span> = <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">enable_if_t</span> = <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">enable_if</span><span style="color: #4f97d7;">&lt;</span>B,<span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>::type;
+</pre>
+</div>
+</section>
+<section id="slide-org8da266d">
+<h3 id="org8da266d">Варианты использования</h3>
+<ul>
+<li>В шаблоне</li>
+<li>В возвращаемом типе</li>
+<li>В аргументах</li>
+
+</ul>
+</section>
+<section id="slide-orgbf026bf">
+<h3 id="orgbf026bf">Альтернатива</h3>
+<ul>
+<li>constexpr</li>
+<li>tag dispatching</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgbb9b8af">
+<h2 id="orgbb9b8af">Ссылки</h2>
+<ul>
+<li><a href="https://www.bfilipek.com/2016/02/notes-on-c-sfinae.html">Filipek. Notes on C++ SFINAE</a></li>
+<li><a href="https://en.cppreference.com/w/cpp/header/type_traits">&lt;type_traits&gt;</a></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>
