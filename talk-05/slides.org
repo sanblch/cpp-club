@@ -1,0 +1,88 @@
+#+TITLE: Паттерны проектирования: наблюдатель, посетитеть, издатели/подписчики
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/05designpatterns1
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Паттерны проектирования: наблюдатель, посетитель, издатели/подписчики</h3><p class="author">%a</p><p class="date">2020-05-26</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Наблюдатель
+** Определение
+#+BEGIN_EXAMPLE
+Паттерн Наблюдатель определяет отношение "один-ко-многим"
+между объектами таким образом, что при изменении состояния
+одного объекта происходит автоматическое оповещение и
+обновление всех зависимых объектов.
+#+END_EXAMPLE
+** UML диаграмма класса и последовательности
+[[./img/observer-uml.jpg]]
+** Наивная реализация
+#+BEGIN_SRC c++
+  class Observer {
+  public:
+    void update() = 0;
+  };
+
+  class Observable {
+    std::vector<Observer *> m_observers;
+
+  public:
+    void attach(Observer *);
+    void detach(Observer *);
+    void notify() {
+      for (auto o : m_observers)
+        o->update();
+    }
+  };
+#+END_SRC
+
+** Пример
+#+BEGIN_SRC c++
+  boost::signals2::signal<void()> sig;
+
+  struct Observer {
+    void operator()() const;
+  };
+
+  auto c = sig.connect(Observer());
+  c.disconnect();
+#+END_SRC
+* Посетитель
+** Определение
+#+BEGIN_EXAMPLE
+Представляет операцию, которую надо выполнить над элементами
+объекта. Позволяет определить новую операцию, не меняя классы
+элементов, к которым он применяется.
+#+END_EXAMPLE
+** UML диаграмма класса и последовательности
+[[./img/visitor-uml.jpg]]
+** Наивная реализация
+#+BEGIN_SRC c++
+  class Element {
+  public:
+    void accept(Visitor *v) { v->visit(this); }
+  };
+
+  class Visitor {
+  public:
+    void visit(Element *) = 0;
+  };
+#+END_SRC
+
+** Двойная диспетчеризация/Double dispatch
+#+BEGIN_EXAMPLE
+Механизм, отправляющий вызов функции к конкретным реализациям,
+зависящим от типов объектов, участвующих в вызове, известных
+на этапе выполения.
+#+END_EXAMPLE
+** Пример
+* Издатель-подписчик
+** Пример
+* Ссылки
+|[[./img/pp.jpg]]|[[./img/gof.jpg]]|[[./img/posa1.jpg]]|
