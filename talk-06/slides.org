@@ -1,0 +1,105 @@
+#+TITLE: WebAssembly для C++
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/06webassembly
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="img/wasm.svg">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">WebAssembly для C++</h3><p class="author">%a</p><p class="date">2020-06-25</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Что это
+Формат бинарных инструкций стэковой виртуальной машины
+- [[https://webassembly.org/][вот это вот]]
+  - эффективный и быстрый
+  - безопасный
+  - открытый и отладочный
+  - часть открытой веб платформы
+- [[https://webassembly.org/roadmap/][В разработке]]
+- [[https://webassembly.org/docs/c-and-c++/][Как портировать]]
+* Emscripten
+Инструмент для компиляции в WASM на базе WebAssembly
+- [[https://emscripten.org/][вот это вот]]
+- портативность
+- апишность
+- фастность
+** Инсталляция
+#+begin_src bash
+# Get the emsdk repo
+git clone https://github.com/emscripten-core/emsdk.git
+
+# Enter that directory
+cd emsdk
+#+end_src
+** Инсталляция
+#+begin_src bash
+# Fetch the latest version of the emsdk (not needed the first time you clone)
+git pull
+
+# Download and install the latest SDK tools.
+./emsdk install latest
+
+# Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+./emsdk activate latest
+
+# Activate PATH and other environment variables in the current terminal
+source ./emsdk_env.sh
+#+end_src
+* Hello world
+Генерация JS
+#+begin_src bash
+em++ main.cpp
+node a.out.js
+#+end_src
+Генерация HTML
+#+begin_src bash
+em++ main.cpp -o hello.html
+python3 -m http.server
+#+end_src
+* CMake world
+#+begin_src bash
+cmake . -DCMAKE_TOOLCHAIN_FILE= \
+ <emscripten>/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+#+end_src
+* CMake world
+#+begin_src cmake
+cmake_minimum_required(VERSION 3.13)
+
+set(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+add_executable(helloworld
+  main.cpp)
+
+set_target_properties(helloworld
+  PROPERTIES LINK_FLAGS "-s WASM=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0")
+#+end_src
+* Qt
+- [[https://wiki.qt.io/Qt_for_WebAssembly][дока]]
+- [[https://www.qt.io/qt-examples-for-webassembly][примеры]]
+- [[https://msorvig.github.io/qt-webassembly-examples/][оригинал примеры]]
+- [[https://github.com/msorvig/qt-webassembly-examples][исходники]]
+** Структура проекта
+| Имя          | Описание           |
+|--------------+--------------------|
+| appname.wasm | основной бинарник  |
+| appname.js   | рантайм Emscripten |
+| appname.html | контейнер html     |
+| qtloader.js  | рантайм Qt         |
+* Conan
+#+begin_src
+include(default)
+[settings]
+os=Emscripten
+arch=x86
+compiler=clang
+compiler.version=11
+compiler.libcxx=libstdc++11
+[options]
+[build_requires]
+emsdk_installer/1.39.13@bincrafters/stable
+[env]
+#+end_src

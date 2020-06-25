@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>WebAssembly для C++</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="img/wasm.svg">
+<h3 class="subtitle">WebAssembly для C++</h3><p class="author">Александр Крутиков</p><p class="date">2020-06-25</p>
+</section>
+
+<section>
+<section id="slide-org1378541">
+<h2 id="org1378541">Что это</h2>
+<p>
+Формат бинарных инструкций стэковой виртуальной машины
+</p>
+<ul>
+<li><a href="https://webassembly.org/">вот это вот</a>
+<ul>
+<li>эффективный и быстрый</li>
+<li>безопасный</li>
+<li>открытый и отладочный</li>
+<li>часть открытой веб платформы</li>
+
+</ul></li>
+<li><a href="https://webassembly.org/roadmap/">В разработке</a></li>
+<li><a href="https://webassembly.org/docs/c-and-c++/">Как портировать</a></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3c6b60a">
+<h2 id="org3c6b60a">Emscripten</h2>
+<p>
+Инструмент для компиляции в WASM на базе WebAssembly
+</p>
+<ul>
+<li><a href="https://emscripten.org/">вот это вот</a></li>
+<li>портативность</li>
+<li>апишность</li>
+<li>фастность</li>
+
+</ul>
+</section>
+<section id="slide-org3640e0d">
+<h3 id="org3640e0d">Инсталляция</h3>
+<div class="org-src-container">
+
+<pre  class="src src-bash"><span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Get the emsdk repo</span>
+git clone https://github.com/emscripten-core/emsdk.git
+
+<span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Enter that directory</span>
+<span style="color: #4f97d7;">cd</span> emsdk
+</pre>
+</div>
+</section>
+<section id="slide-orgeafc3a1">
+<h3 id="orgeafc3a1">Инсталляция</h3>
+<div class="org-src-container">
+
+<pre  class="src src-bash"><span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Fetch the latest version of the emsdk (not needed the first time you clone)</span>
+git pull
+
+<span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Download and install the latest SDK tools.</span>
+./emsdk install latest
+
+<span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Make the "latest" SDK "active" for the current user. (writes .emscripten file)</span>
+./emsdk activate latest
+
+<span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">Activate PATH and other environment variables in the current terminal</span>
+<span style="color: #4f97d7;">source</span> ./emsdk_env.sh
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgcbc65f5">
+<h2 id="orgcbc65f5">Hello world</h2>
+<p>
+Генерация JS
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-bash">em++ main.cpp
+node a.out.js
+</pre>
+</div>
+<p>
+Генерация HTML
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-bash">em++ main.cpp -o hello.html
+python3 -m http.server
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf099c61">
+<h2 id="orgf099c61">CMake world</h2>
+<div class="org-src-container">
+
+<pre  class="src src-bash">cmake . -DCMAKE_TOOLCHAIN_FILE= <span style="color: #2d9574;">\</span>
+ &lt;emscripten&gt;/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgef63f20">
+<h2 id="orgef63f20">CMake world</h2>
+<div class="org-src-container">
+
+<pre  class="src src-cmake"><span style="color: #bc6ec5; font-weight: bold;">cmake_minimum_required</span><span style="color: #4f97d7;">(</span>VERSION <span style="color: #a45bad;">3</span>.<span style="color: #a45bad;">13</span><span style="color: #4f97d7;">)</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">set</span><span style="color: #4f97d7;">(</span>CMAKE_EXECUTABLE_SUFFIX <span style="color: #2d9574;">".html"</span><span style="color: #4f97d7;">)</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">add_executable</span><span style="color: #4f97d7;">(</span>helloworld
+  main.cpp<span style="color: #4f97d7;">)</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">set_target_properties</span><span style="color: #4f97d7;">(</span>helloworld
+  PROPERTIES LINK_FLAGS <span style="color: #2d9574;">"-s WASM=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0"</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org0e2241f">
+<h2 id="org0e2241f">Qt</h2>
+<ul>
+<li><a href="https://wiki.qt.io/Qt_for_WebAssembly">дока</a></li>
+<li><a href="https://www.qt.io/qt-examples-for-webassembly">примеры</a></li>
+<li><a href="https://msorvig.github.io/qt-webassembly-examples/">оригинал примеры</a></li>
+<li><a href="https://github.com/msorvig/qt-webassembly-examples">исходники</a></li>
+
+</ul>
+</section>
+<section id="slide-orgd55ee34">
+<h3 id="orgd55ee34">Структура проекта</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Имя</th>
+<th scope="col" class="org-left">Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">appname.wasm</td>
+<td class="org-left">основной бинарник</td>
+</tr>
+
+<tr>
+<td class="org-left">appname.js</td>
+<td class="org-left">рантайм Emscripten</td>
+</tr>
+
+<tr>
+<td class="org-left">appname.html</td>
+<td class="org-left">контейнер html</td>
+</tr>
+
+<tr>
+<td class="org-left">qtloader.js</td>
+<td class="org-left">рантайм Qt</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section>
+<section id="slide-org8d3ab91">
+<h2 id="org8d3ab91">Conan</h2>
+<pre  class="example">
+include(default)
+[settings]
+os=Emscripten
+arch=x86
+compiler=clang
+compiler.version=11
+compiler.libcxx=libstdc++11
+[options]
+[build_requires]
+emsdk_installer/1.39.13@bincrafters/stable
+[env]
+</pre>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/alex/Yandex.Disk/opt/js/reveal.js/lib/js/head.min.js"></script>
+<script src="file:///home/alex/Yandex.Disk/opt/js/reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>
