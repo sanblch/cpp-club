@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Концепты</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+<h3 class="subtitle">Концепты</h3><p class="author">Александр Крутиков</p><p class="date">2020-07-30</p>
+</section>
+
+<section>
+<section id="slide-org3733918">
+<h2 id="org3733918">Определение</h2>
+<p>
+Концепт - это шаблон, который определяет ограничения для своих аргументов. [<a href="https://github.com/cplusplus/draft/releases/tag/n4861">ISO C++</a>]
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">concept</span> <span style="color: #7590db;">C</span> = requires<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">x</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #bc6ec5;">{</span> x == x <span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">convertible_to</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">bool</span><span style="color: #bc6ec5;">&gt;</span>;
+<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> requires <span style="color: #ce537a; font-weight: bold;">C</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #bc6ec5; font-weight: bold;">T</span> f1<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">x</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> x; <span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">C</span> <span style="color: #7590db;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #bc6ec5; font-weight: bold;">f2</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">x</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> x; <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org2043a91">
+<h2 id="org2043a91">&lt;concept&gt;</h2>
+<p>
+[<a href="https://en.cppreference.com/w/cpp/concepts/integral">cppreference</a>]
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">concept</span> <span style="color: #7590db;">integral</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">is_integral_v</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #a45bad;">std</span>::movable
+<span style="color: #a45bad;">std</span>::copyable
+<span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">semiregular</span>
+<span style="color: #a45bad;">std</span>::<span style="color: #7590db;">regular</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org993ed1a">
+<h2 id="org993ed1a">Применение</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++">static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">integral</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">integral</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> a = fun<span style="color: #4f97d7;">()</span>;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">integral</span> <span style="color: #7590db;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #a45bad;">std</span>::integral <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">sum</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">a</span>, <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> a + b; <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> requires <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">integral</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #a45bad;">std</span>::<span style="color: #bc6ec5; font-weight: bold;">integral</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> sum<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">a</span>, <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> a + b; <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org38a989d">
+<h2 id="org38a989d">Группирование</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">concept</span> <span style="color: #7590db;">Regular</span> =
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">semiregular</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> &amp;&amp;
+  <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">equality_comparable</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span> &amp;&amp;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgac85fbd">
+<h2 id="orgac85fbd">Концепт контейнера STL</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format off</span>
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">C</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">concept</span> <span style="color: #7590db;">StdContainer</span> = requires <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">C</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::iterator;
+    <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::<span style="color: #ce537a; font-weight: bold;">value_type</span>;
+    <span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">std</span>::begin<span style="color: #2d9574;">(</span>c<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">same_as</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::<span style="color: #ce537a; font-weight: bold;">iterator</span><span style="color: #bc6ec5;">&gt;</span>;
+    <span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">std</span>::end<span style="color: #2d9574;">(</span>c<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">same_as</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::<span style="color: #ce537a; font-weight: bold;">iterator</span><span style="color: #bc6ec5;">&gt;</span>;
+    <span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">std</span>::next<span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::begin<span style="color: #67b11d;">(</span>c<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">same_as</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::<span style="color: #ce537a; font-weight: bold;">iterator</span><span style="color: #bc6ec5;">&gt;</span>;
+    <span style="color: #bc6ec5;">{</span>*<span style="color: #a45bad;">std</span>::begin<span style="color: #2d9574;">(</span>c<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">convertible_to</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">C</span>::<span style="color: #ce537a; font-weight: bold;">value_type</span><span style="color: #bc6ec5;">&gt;</span>;
+    <span style="color: #bc6ec5;">{</span>c.size<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">}</span> -&gt; <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">convertible_to</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">size_t</span><span style="color: #bc6ec5;">&gt;</span>;
+<span style="color: #4f97d7;">}</span>;
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">clang-format on</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org93609e0">
+<h2 id="org93609e0">Концепт контейнера STL до концептов</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">void_t</span> = <span style="color: #ce537a; font-weight: bold;">void</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">container_begin_t</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>&amp;<span style="color: #bc6ec5;">&gt;()</span>.begin<span style="color: #bc6ec5;">()</span><span style="color: #4f97d7;">)</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">container_end_t</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>&amp;<span style="color: #bc6ec5;">&gt;()</span>.end<span style="color: #bc6ec5;">()</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org6015373">
+<h2 id="org6015373">Концепт контейнера STL до концептов</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #ce537a; font-weight: bold;">is_std_container</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>, <span style="color: #ce537a; font-weight: bold;">void_t</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #a45bad;">T</span>::<span style="color: #ce537a; font-weight: bold;">iterator</span><span style="color: #bc6ec5;">&gt;</span>,
+                        <span style="color: #ce537a; font-weight: bold;">void_t</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">container_begin_t</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">&gt;</span>,
+                        <span style="color: #ce537a; font-weight: bold;">void_t</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">container_end_t</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> : <span style="color: #a45bad;">std</span>::true_type <span style="color: #4f97d7;">{}</span>;
+</pre>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

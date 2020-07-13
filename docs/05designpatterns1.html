@@ -7,9 +7,9 @@
 <style type="text/css">
 .underline { text-decoration: underline; }
 </style>
-<link rel="stylesheet" href="file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/reveal.css"/>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
 
-<link rel="stylesheet" href="file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/theme/white.css" id="theme"/>
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
 
 <link rel="stylesheet" href="css/custom.css"/>
 
@@ -19,7 +19,7 @@
         var link = document.createElement( 'link' );
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/css/print/pdf.css';
+        link.href = './reveal.js/css/print/pdf.css';
         document.getElementsByTagName( 'head' )[0].appendChild( link );
     }
 </script>
@@ -33,13 +33,13 @@
 </section>
 
 <section>
-<section id="slide-org38138ab">
-<h2 id="org38138ab">Наблюдатель</h2>
-<div class="outline-text-2" id="text-org38138ab">
+<section id="slide-org599d446">
+<h2 id="org599d446">Наблюдатель</h2>
+<div class="outline-text-2" id="text-org599d446">
 </div>
 </section>
-<section id="slide-org0a29088">
-<h3 id="org0a29088">Определение</h3>
+<section id="slide-org047f9fc">
+<h3 id="org047f9fc">Определение</h3>
 <pre class="example">
 Паттерн Наблюдатель определяет отношение "один-ко-многим"
 между объектами таким образом, что при изменении состояния
@@ -47,16 +47,16 @@
 обновление всех зависимых объектов.
 </pre>
 </section>
-<section id="slide-orge7f1d57">
-<h3 id="orge7f1d57">UML диаграмма класса и последовательности</h3>
+<section id="slide-orgdc52771">
+<h3 id="orgdc52771">UML диаграмма класса и последовательности</h3>
 
 <div class="figure">
 <p><img src="./img/observer-uml.jpg" alt="observer-uml.jpg" />
 </p>
 </div>
 </section>
-<section id="slide-org9779ba2">
-<h3 id="org9779ba2">Наивная реализация</h3>
+<section id="slide-org575c4c5">
+<h3 id="org575c4c5">Наивная реализация</h3>
 <div class="org-src-container">
 
 <pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Observer</span> <span style="color: #4f97d7;">{</span>
@@ -79,8 +79,8 @@
 </div>
 
 </section>
-<section id="slide-org3789259">
-<h3 id="org3789259">Пример</h3>
+<section id="slide-orgd7fa77f">
+<h3 id="orgd7fa77f">Пример</h3>
 <div class="org-src-container">
 
 <pre  class="src src-c++"><span style="color: #a45bad;">boost</span>::<span style="color: #a45bad;">signals2</span>::<span style="color: #ce537a; font-weight: bold;">signal</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">void</span><span style="color: #bc6ec5;">()</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">sig</span>;
@@ -96,29 +96,29 @@ c.disconnect<span style="color: #4f97d7;">()</span>;
 </section>
 </section>
 <section>
-<section id="slide-org2ec1b1f">
-<h2 id="org2ec1b1f">Посетитель</h2>
-<div class="outline-text-2" id="text-org2ec1b1f">
+<section id="slide-org65fed1b">
+<h2 id="org65fed1b">Посетитель</h2>
+<div class="outline-text-2" id="text-org65fed1b">
 </div>
 </section>
-<section id="slide-org51d3aa0">
-<h3 id="org51d3aa0">Определение</h3>
+<section id="slide-org4e11ddc">
+<h3 id="org4e11ddc">Определение</h3>
 <pre class="example">
 Представляет операцию, которую надо выполнить над элементами
 объекта. Позволяет определить новую операцию, не меняя классы
 элементов, к которым он применяется.
 </pre>
 </section>
-<section id="slide-orgeb1da86">
-<h3 id="orgeb1da86">UML диаграмма класса и последовательности</h3>
+<section id="slide-org1d93011">
+<h3 id="org1d93011">UML диаграмма класса и последовательности</h3>
 
 <div class="figure">
 <p><img src="./img/visitor-uml.jpg" alt="visitor-uml.jpg" />
 </p>
 </div>
 </section>
-<section id="slide-org5750057">
-<h3 id="org5750057">Наивная реализация</h3>
+<section id="slide-org7d649bc">
+<h3 id="org7d649bc">Наивная реализация</h3>
 <div class="org-src-container">
 
 <pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Element</span> <span style="color: #4f97d7;">{</span>
@@ -134,31 +134,31 @@ c.disconnect<span style="color: #4f97d7;">()</span>;
 </div>
 
 </section>
-<section id="slide-org5cfc34a">
-<h3 id="org5cfc34a">Двойная диспетчеризация/Double dispatch</h3>
+<section id="slide-org8d5c9ee">
+<h3 id="org8d5c9ee">Двойная диспетчеризация/Double dispatch</h3>
 <pre class="example">
 Механизм, отправляющий вызов функции к конкретным реализациям,
 зависящим от типов объектов, участвующих в вызове, известных
 на этапе выполения.
 </pre>
 </section>
-<section id="slide-org8c50a93">
-<h3 id="org8c50a93">Пример</h3>
+<section id="slide-orga410440">
+<h3 id="orga410440">Пример</h3>
 </section>
 </section>
 <section>
-<section id="slide-orgf098edd">
-<h2 id="orgf098edd">Издатель-подписчик</h2>
-<div class="outline-text-2" id="text-orgf098edd">
+<section id="slide-org4ef5504">
+<h2 id="org4ef5504">Издатель-подписчик</h2>
+<div class="outline-text-2" id="text-org4ef5504">
 </div>
 </section>
-<section id="slide-orga0ab366">
-<h3 id="orga0ab366">Пример</h3>
+<section id="slide-org33f2c63">
+<h3 id="org33f2c63">Пример</h3>
 </section>
 </section>
 <section>
-<section id="slide-orgac534f1">
-<h2 id="orgac534f1">Ссылки</h2>
+<section id="slide-org69f4e21">
+<h2 id="org69f4e21">Ссылки</h2>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -181,8 +181,8 @@ c.disconnect<span style="color: #4f97d7;">()</span>;
 </section>
 </div>
 </div>
-<script src="file:///home/alex/Yandex.Disk/opt/js/reveal.js/lib/js/head.min.js"></script>
-<script src="file:///home/alex/Yandex.Disk/opt/js/reveal.js/js/reveal.js"></script>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
 <script>
 // Full list of configuration options available here:
 // https://github.com/hakimel/reveal.js#configuration
@@ -208,11 +208,11 @@ transitionSpeed: 'default',
 
 // Optional libraries used to extend reveal.js
 dependencies: [
- { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
- { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
- { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
- { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
- { src: 'file:///home/alex/Yandex.Disk/opt/js/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
 
 });
 </script>

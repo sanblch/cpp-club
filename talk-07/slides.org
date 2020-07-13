@@ -1,0 +1,95 @@
+#+TITLE: Концепты
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/07concepts
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Концепты</h3><p class="author">%a</p><p class="date">2020-07-30</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Определение
+Концепт - это шаблон, который определяет ограничения для своих аргументов. [[[https://github.com/cplusplus/draft/releases/tag/n4861][ISO C++]]]
+#+BEGIN_SRC c++
+  template<typename T>
+  concept C = requires(T x) {
+    { x == x } -> std::convertible_to<bool>;
+  };
+
+  template<typename T> requires C<T>
+  T f1(T x) { return x; }
+
+  template<C T>
+  T f2(T x) { return x; }
+#+END_SRC
+* <concept>
+[[[https://en.cppreference.com/w/cpp/concepts/integral][cppreference]]]
+#+BEGIN_SRC c++
+template <class T>
+concept integral = std::is_integral_v<T>;
+#+END_SRC
+#+BEGIN_SRC c++
+std::movable
+std::copyable
+std::semiregular
+std::regular
+#+END_SRC
+* Применение
+#+BEGIN_SRC c++
+static_assert(std::integral<int>)
+#+END_SRC
+#+BEGIN_SRC c++
+std::integral auto a = fun();
+#+END_SRC
+#+BEGIN_SRC c++
+template<std::integral T>
+std::integral auto sum(T a, T b) { return a + b; }
+#+END_SRC
+#+BEGIN_SRC c++
+template<template T> requires std::integral<T>
+std::integral auto sum(T a, T b) { return a + b; }
+#+END_SRC
+* Группирование
+#+BEGIN_SRC c++
+template<typename T>
+concept Regular =
+  std::semiregular<T> &&
+  std::equality_comparable<T> &&
+#+END_SRC
+* Концепт контейнера STL
+#+BEGIN_SRC c++
+// clang-format off
+template<typename C>
+concept StdContainer = requires (C c) {
+    typename C::iterator;
+    typename C::value_type;
+    {std::begin(c)} -> std::same_as<typename C::iterator>;
+    {std::end(c)} -> std::same_as<typename C::iterator>;
+    {std::next(std::begin(c))} -> std::same_as<typename C::iterator>;
+    {*std::begin(c)} -> std::convertible_to<typename C::value_type>;
+    {c.size()} -> std::convertible_to<size_t>;
+};
+// clang-format on
+#+END_SRC
+* Концепт контейнера STL до концептов
+#+BEGIN_SRC c++
+template<typename T>
+using void_t = void;
+
+template<typename T>
+using container_begin_t = decltype(std::declval<T&>().begin());
+
+template<typename T>
+using container_end_t = decltype(std::declval<T&>().end());
+#+END_SRC
+* Концепт контейнера STL до концептов
+#+BEGIN_SRC c++
+  template <typename T>
+  struct is_std_container<T, void_t<typename T::iterator>,
+                          void_t<container_begin_t<T>>,
+                          void_t<container_end_t<T>>> : std::true_type {};
+#+END_SRC
