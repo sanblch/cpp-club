@@ -26,7 +26,7 @@
   template<C T>
   T f2(T x) { return x; }
 #+END_SRC
-* <concept>
+* <concepts>
 [[[https://en.cppreference.com/w/cpp/concepts/integral][cppreference]]]
 #+BEGIN_SRC c++
 template <class T>
