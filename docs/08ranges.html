@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Ranges</title>
+<meta name="author" content="Александр Крутиков"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="css/custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+<h3 class="subtitle">Ranges</h3><p class="author">Александр Крутиков</p><p class="date">2020-08-04</p>
+</section>
+
+<section>
+<section id="slide-org86ac18d">
+<h2 id="org86ac18d">Определение</h2>
+<p>
+Интервал - последовательность элементов от i до j. [i, j)
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org49b089f">
+<h2 id="org49b089f">Определение</h2>
+<p>
+Концепт range - требования предоставить начальный итератор и конечный сентинел
+к элементам интервала для их перебора [<a href="https://github.com/cplusplus/draft/releases/tag/n4861">ISO C++</a>]
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #ce537a; font-weight: bold;">concept</span> <span style="color: #7590db;">range</span> = requires<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span>&amp; <span style="color: #7590db;">t</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">ranges</span>::begin<span style="color: #bc6ec5;">(</span>t<span style="color: #bc6ec5;">)</span>;
+  <span style="color: #a45bad;">ranges</span>::end<span style="color: #bc6ec5;">(</span>t<span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org71c3f80">
+<h2 id="org71c3f80">Определение</h2>
+<p>
+Сентинел - указатель конца интервала, не обязательно того же типа, что
+итератор/указатель начала интервала.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">iterator_t</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">ranges</span>::begin<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">T</span>&amp;<span style="color: #2d9574;">&gt;()</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">ranges</span>::<span style="color: #ce537a; font-weight: bold;">range</span> <span style="color: #7590db;">R</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">sentinel_t</span> = <span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">ranges</span>::end<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">R</span>&amp;<span style="color: #2d9574;">&gt;()</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgcaaa626">
+<h2 id="orgcaaa626">Пример интервала</h2>
+<div class="outline-text-2" id="text-orgcaaa626">
+</div>
+<ul class="org-ul">
+<li><a id="org980eccf"></a>Пара итераторов<br /></li>
+<li><a id="org20ab0a5"></a>Итератор и предикат<br /></li>
+<li><a id="orga536b78"></a>Итератор и количество<br /></li>
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org2dcdc17">
+<h2 id="org2dcdc17">Варианты реализации</h2>
+<ol>
+<li><a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a></li>
+<li><a href="https://github.com/tcbrindle/NanoRange">NanoRange</a></li>
+<li><a href="https://github.com/ericniebler/range-v3">range-v3</a></li>
+<li><a href="https://www.boost.org/doc/libs/1_73_0/libs/range/doc/html/index.html">Boost.Range</a></li>
+<li><a href="https://github.com/think-cell/range">think-cell/range</a></li>
+
+</ol>
+</section>
+</section>
+<section>
+<section id="slide-org7110364">
+<h2 id="org7110364">Мотивационные видео</h2>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=gOKHcQad7xE">Niebler, C++ Siberia 2015</a></li>
+<li><a href="https://www.youtube.com/watch?v=qQtS50ZChN8">Yitzchaki, CppCon 2019</a></li>
+
+</ol>
+</section>
+</section>
+<section>
+<section id="slide-org4799f92">
+<h2 id="org4799f92">View</h2>
+<div class="outline-text-2" id="text-org4799f92">
+</div>
+<ul class="org-ul">
+<li><a id="org6b6330d"></a>views::empty<br /></li>
+<li><a id="org653e0a1"></a>views::single<br /></li>
+<li><a id="org701dde8"></a>views::iota<br /></li>
+<li><a id="org604839d"></a>views::counted<br /></li>
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org9b1933d">
+<h2 id="org9b1933d">Iota</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #bc6ec5;">#include</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #2d9574;">ranges</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">i</span> : <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::iota<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">11</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span style="color: #4f97d7;">}</span>
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">i</span> : <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::iota<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span> | <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::take<span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">10</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org6744912">
+<h2 id="org6744912">Адапторы</h2>
+<p>
+C(R)
+</p>
+
+<p>
+R | C
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org58651d4">
+<h2 id="org58651d4">Адапторы</h2>
+<p>
+R | C | D
+</p>
+
+<p>
+R | (C | D)
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org866d70e">
+<h2 id="org866d70e">Адапторы</h2>
+<p>
+adaptor(range, args&#x2026;)
+</p>
+
+<p>
+adaptor(args&#x2026;)(range)
+</p>
+
+<p>
+range | adaptor(args&#x2026;)
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgcb97dc5">
+<h2 id="orgcb97dc5">Адапторы</h2>
+<div class="outline-text-2" id="text-orgcb97dc5">
+</div>
+<ul class="org-ul">
+<li><a id="org1821e9b"></a>views::all<br /></li>
+<li><a id="org2c0ee5f"></a>ref_views<br /></li>
+<li><a id="org895a1f2"></a>views::filter<br /></li>
+<li><a id="org9a9fdc3"></a>views::transform<br /></li>
+<li><a id="orge1932ba"></a>views::take<br /></li>
+<li><a id="orge49153e"></a>views::take_while<br /></li>
+<li><a id="org42f6e33"></a>views::drop<br /></li>
+<li><a id="org0297962"></a>views::drop_while<br /></li>
+<li><a id="org3317b9e"></a>views::join<br /></li>
+<li><a id="org66c5932"></a>views::split<br /></li>
+<li><a id="org4e32906"></a>views::reverse<br /></li>
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org4b38a0e">
+<h2 id="org4b38a0e">Пример</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">ints</span><span style="color: #4f97d7;">{</span><span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">3</span>, <span style="color: #a45bad;">4</span>, <span style="color: #a45bad;">5</span><span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">even</span> = <span style="color: #4f97d7;">[](</span><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">i</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">0</span> == i % <span style="color: #a45bad;">2</span>; <span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">square</span> = <span style="color: #4f97d7;">[](</span><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">i</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span> <span style="color: #4f97d7; font-weight: bold;">return</span> i * i; <span style="color: #4f97d7;">}</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">i</span> : ints | <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::filter<span style="color: #bc6ec5;">(</span>even<span style="color: #bc6ec5;">)</span> | <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::transform<span style="color: #bc6ec5;">(</span>square<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::cout &lt;&lt; i &lt;&lt; <span style="color: #2d9574;">' '</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orga2d10e7">
+<h2 id="orga2d10e7">Пример</h2>
+<div class="org-src-container">
+
+<pre  class="src src-c++"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">even_square</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::filter<span style="color: #bc6ec5;">(</span>even<span style="color: #bc6ec5;">)</span> | <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">views</span>::transform<span style="color: #bc6ec5;">(</span>square<span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">i</span> : ints | even_square<span style="color: #bc6ec5;">()</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #a45bad;">std</span>::cout &lt;&lt; i &lt;&lt; <span style="color: #2d9574;">' '</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+#+TITLE: Ranges
+#+AUTHOR: Александр Крутиков
+#+EMAIL: a.krutikov@innopolis.ru
+
+#+REVEAL_THEME: white
+#+EXPORT_FILE_NAME: ../docs/08ranges
+#+REVEAL_INIT_OPTIONS: hash:true, slideNumber:true, controls:false
+#+REVEAL_EXTRA_CSS: css/custom.css
+#+REVEAL_TITLE_SLIDE: <img class="title-image" height="200px" src="https://cdn.dribbble.com/users/46200/screenshots/4107676/cpp_dribble_1.png">
+#+REVEAL_TITLE_SLIDE: <h3 class="subtitle">Ranges</h3><p class="author">%a</p><p class="date">2020-08-04</p>
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Определение
+Интервал - последовательность элементов от i до j. [i, j)
+* Определение
+Концепт range - требования предоставить начальный итератор и конечный сентинел
+к элементам интервала для их перебора [[[https://github.com/cplusplus/draft/releases/tag/n4861][ISO C++]]]
+#+BEGIN_SRC c++
+  template<typename T>
+  concept range = requires(T& t) {
+    ranges::begin(t);
+    ranges::end(t);
+  };
+#+END_SRC
+* Определение
+Сентинел - указатель конца интервала, не обязательно того же типа, что
+итератор/указатель начала интервала.
+#+BEGIN_SRC c++
+template <class T>
+using iterator_t = decltype(ranges::begin(std::declval<T&>()));
+template <ranges::range R>
+using sentinel_t = decltype(ranges::end(std::declval<R&>()));
+#+END_SRC
+* Пример интервала
+**** Пара итераторов
+**** Итератор и предикат
+**** Итератор и количество
+* Варианты реализации
+1. [[https://github.com/CaseyCarter/cmcstl2][cmcstl2]]
+2. [[https://github.com/tcbrindle/NanoRange][NanoRange]]
+3. [[https://github.com/ericniebler/range-v3][range-v3]]
+4. [[https://www.boost.org/doc/libs/1_73_0/libs/range/doc/html/index.html][Boost.Range]]
+5. [[https://github.com/think-cell/range][think-cell/range]]
+* Мотивационные видео
+1. [[https://www.youtube.com/watch?v=gOKHcQad7xE][Niebler, C++ Siberia 2015]]
+2. [[https://www.youtube.com/watch?v=qQtS50ZChN8][Yitzchaki, CppCon 2019]]
+* View
+**** views::empty
+**** views::single
+**** views::iota
+**** views::counted
+* Iota
+#+BEGIN_SRC c++
+  #include <ranges>
+  for (auto i : std::views::iota(1, 11)) {
+  }
+  for (auto i : std::views::iota(1) | std::views::take(10)) {
+  }
+#+END_SRC
+* Адапторы
+C(R)
+
+R | C
+* Адапторы
+R | C | D
+
+R | (C | D)
+* Адапторы
+adaptor(range, args...)
+
+adaptor(args...)(range)
+
+range | adaptor(args...)
+* Адапторы
+**** views::all
+**** ref_views
+**** views::filter
+**** views::transform
+**** views::take
+**** views::take_while
+**** views::drop
+**** views::drop_while
+**** views::join
+**** views::split
+**** views::reverse
+* Пример
+#+BEGIN_SRC c++
+  std::vector<int> ints{0, 1, 2, 3, 4, 5};
+  auto even = [](int i) { return 0 == i % 2; };
+  auto square = [](int i) { return i * i; };
+
+  for (int i : ints | std::views::filter(even) | std::views::transform(square)) {
+    std::cout << i << ' ';
+  }
+#+END_SRC
+* Пример
+#+BEGIN_SRC c++
+  auto even_square() {
+    return std::views::filter(even) | std::views::transform(square);
+  }
+
+  for (int i : ints | even_square()) {
+    std::cout << i << ' ';
+  }
+#+END_SRC
