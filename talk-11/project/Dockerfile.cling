@@ -1,0 +1,23 @@
+FROM ubuntu:20.04
+
+ARG CLINGDIR=cling_2020-11-05_ROOT-ubuntu2004
+ENV PATH="/$CLINGDIR/bin:${PATH}"
+
+RUN apt-get update && apt-get install -y python3-pip wget \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install jedi==0.17.2 jupyter
+
+RUN wget \
+  https://root.cern/download/cling/$CLINGDIR.tar.bz2 \
+  && tar -xjf $CLINGDIR.tar.bz2 \
+  && rm $CLINGDIR.tar.bz2 \
+  && cd $CLINGDIR/share/cling/Jupyter/kernel \
+  && pip3 install -e .
+
+
+RUN jupyter-kernelspec install $CLINGDIR/share/cling/Jupyter/kernel/cling-cpp17
+
+EXPOSE 8888
+
+ENTRYPOINT ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
